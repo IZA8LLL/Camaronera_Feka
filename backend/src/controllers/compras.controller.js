@@ -3,12 +3,48 @@
    Cifra RUC y cuenta bancaria con AES-256-GCM. */
 const mongoose = require('mongoose');
 const { id, dec, safeText } = require('../config/helpers');
-const { encrypt } = require('../services/crypto.service');
+const { encrypt, decrypt } = require('../services/crypto.service');
 const { Proveedor } = require('../models/proveedor.model');
 const { Orden } = require('../models/orden.model');
 const { audit } = require('./auth.controller');
 
-// GET /api/ordenes-compra
+// GET /api/proveedores
+async function listarProveedores(req, res, next) {
+  try {
+    const rows = await Proveedor.find({ tenant_id: req.auth.tenantId })
+      .sort({ nombre: 1 })
+      .limit(100)
+      .select('+ruc_cifrado +ruc_iv +ruc_tag')
+      .lean();
+
+    res.json(rows.map(x => {
+      let ruc = '🔒 Encriptado';
+      if (x.ruc_cifrado && x.ruc_iv && x.ruc_tag) {
+        try {
+          const bData = Buffer.isBuffer(x.ruc_cifrado) ? x.ruc_cifrado : Buffer.from(x.ruc_cifrado.buffer || x.ruc_cifrado);
+          const bIv = Buffer.isBuffer(x.ruc_iv) ? x.ruc_iv : Buffer.from(x.ruc_iv.buffer || x.ruc_iv);
+          const bTag = Buffer.isBuffer(x.ruc_tag) ? x.ruc_tag : Buffer.from(x.ruc_tag.buffer || x.ruc_tag);
+          const decRuc = decrypt(bData, bIv, bTag);
+          ruc = decRuc.slice(0, 4) + '****' + decRuc.slice(-3);
+        } catch {
+          ruc = '🔒 Encriptado';
+        }
+      }
+      return {
+        id: String(x._id),
+        _id: String(x._id),
+        codigo: x.codigo,
+        nombre: x.nombre,
+        ruc,
+        contacto: x.contacto || '',
+        email_contacto: x.contacto || '',
+        activo: x.activo
+      };
+    }));
+  } catch (e) { next(e); }
+}
+
+// GET /api/ordenes y /api/ordenes-compra
 async function listarOrdenes(req, res, next) {
   try {
     const rows = await Orden.find({})
@@ -19,10 +55,12 @@ async function listarOrdenes(req, res, next) {
 
     res.json(rows.map(x => ({
       id: String(x._id),
+      _id: String(x._id),
       numero: x.numero,
+      numero_orden: x.numero,
       fecha: x.fecha,
       estado: x.estado,
-      total: x.total?.toString(),
+      total: Number(x.total?.toString() || 0),
       proveedor_id: String(x.proveedor_id)
     })));
   } catch (e) { next(e); }
@@ -33,15 +71,16 @@ async function crearProveedor(req, res, next) {
   try {
     const d = req.data;
     const r = encrypt(d.ruc);
-    const a = encrypt(d.cuenta_bancaria);
-    const contact = safeText(d.contacto || '');
+    const a = d.cuenta_bancaria ? encrypt(d.cuenta_bancaria) : null;
+    const contact = safeText(d.contacto || d.email || '');
+    const codigo = d.codigo || `PRV-${Date.now().toString().slice(-6)}`;
 
     const doc = await Proveedor.create({
       tenant_id: req.auth.tenantId,
-      codigo: d.codigo,
+      codigo,
       nombre: safeText(d.nombre),
       ruc_cifrado: r.data, ruc_iv: r.iv, ruc_tag: r.tag,
-      cuenta_cifrada: a.data, cuenta_iv: a.iv, cuenta_tag: a.tag,
+      ...(a ? { cuenta_cifrada: a.data, cuenta_iv: a.iv, cuenta_tag: a.tag } : {}),
       ...(contact ? { contacto: contact } : {}),
       activo: true
     });
@@ -108,4 +147,4 @@ async function crearOrden(req, res, next) {
   } catch (e) { next(e); }
 }
 
-module.exports = { listarOrdenes, crearProveedor, crearOrden };
+module.exports = { listarProveedores, listarOrdenes, crearProveedor, crearOrden };

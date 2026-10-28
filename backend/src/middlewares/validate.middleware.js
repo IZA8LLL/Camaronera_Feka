@@ -67,12 +67,13 @@ const feedDto = z.object({
 }).strict();
 
 const providerDto = z.object({
-  codigo: z.string().min(1).max(40),
+  codigo: z.string().min(1).max(40).optional(),
   nombre: z.string().min(1).max(160),
   ruc: z.string().regex(/^\d{10,13}$/),
-  cuenta_bancaria: z.string().min(8).max(40),
-  contacto: z.string().max(160).optional()
-}).strict();
+  cuenta_bancaria: z.string().max(40).optional().or(z.literal('')),
+  contacto: z.string().max(160).optional(),
+  email: z.string().email().optional().or(z.literal(''))
+}).strip();
 
 const milli = z.number().gt(0).max(1e8).refine(
   n => Number.isSafeInteger(Math.round(n * 1000)) && Math.abs(n * 1000 - Math.round(n * 1000)) < 1e-6

@@ -7,7 +7,7 @@ const { authenticate, permit } = require('../middlewares/auth.middleware');
 const { validate, sampleDto, waterDto, feedDto, providerDto, orderDto } = require('../middlewares/validate.middleware');
 const { listarPiscinas } = require('../controllers/piscina.controller');
 const { crearMuestreo, crearParametrosAgua, crearAlimentacion, listarKardex } = require('../controllers/operacion.controller');
-const { listarOrdenes, crearProveedor, crearOrden } = require('../controllers/compras.controller');
+const { listarProveedores, listarOrdenes, crearProveedor, crearOrden } = require('../controllers/compras.controller');
 const { logout } = require('../controllers/auth.controller');
 
 const router = Router();
@@ -51,10 +51,13 @@ router.post('/alimentacion', permit('alimentacion', 'crear'), validate(feedDto),
 router.get('/kardex', permit('kardex', 'leer'), listarKardex);
 
 // ─── Órdenes de Compra ───────────────────────────────────
+router.get('/ordenes', permit('compras', 'leer'), listarOrdenes);
 router.get('/ordenes-compra', permit('compras', 'leer'), listarOrdenes);
+router.post('/ordenes', permit('compras', 'crear'), validate(orderDto), crearOrden);
 router.post('/ordenes-compra', permit('compras', 'crear'), validate(orderDto), crearOrden);
 
 // ─── Proveedores ──────────────────────────────────────────
+router.get('/proveedores', permit('compras', 'leer'), listarProveedores);
 router.post('/proveedores', permit('proveedores', 'crear'), validate(providerDto), crearProveedor);
 
 // ─── Logout ───────────────────────────────────────────────
