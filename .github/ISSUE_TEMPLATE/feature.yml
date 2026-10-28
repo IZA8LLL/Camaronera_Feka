@@ -1,0 +1,31 @@
+name: Solicitud de funcionalidad
+description: Registra una necesidad del sistema antes de implementarla
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Problema
+      description: ¿Qué dificultad del trabajo en la camaronera se desea resolver?
+      placeholder: Como operador, necesito...
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      description: Escribe resultados observables que permitan comprobar la funcionalidad.
+      placeholder: "- Dado..., cuando..., entonces..."
+    validations:
+      required: true
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: Prioridad
+      options:
+        - Alta
+        - Media
+        - Baja
+    validations:
+      required: true
