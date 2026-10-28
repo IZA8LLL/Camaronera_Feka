@@ -8,7 +8,7 @@ const { Proveedor } = require('../models/proveedor.model');
 const { Orden } = require('../models/orden.model');
 const { audit } = require('./auth.controller');
 
-// GET /api/ordenes-compra
+// GET /api/ordenes (o /api/ordenes-compra)
 async function listarOrdenes(req, res, next) {
   try {
     const rows = await Orden.find({})
@@ -19,11 +19,33 @@ async function listarOrdenes(req, res, next) {
 
     res.json(rows.map(x => ({
       id: String(x._id),
+      _id: String(x._id),
       numero: x.numero,
+      numero_orden: x.numero,
       fecha: x.fecha,
       estado: x.estado,
-      total: x.total?.toString(),
+      total: Number(x.total?.toString() || 0),
       proveedor_id: String(x.proveedor_id)
+    })));
+  } catch (e) { next(e); }
+}
+
+// GET /api/proveedores
+async function listarProveedores(req, res, next) {
+  try {
+    const rows = await Proveedor.find({ tenant_id: req.auth.tenantId, activo: true })
+      .sort({ nombre: 1 })
+      .select('codigo nombre contacto activo')
+      .lean();
+
+    res.json(rows.map(x => ({
+      id: String(x._id),
+      _id: String(x._id),
+      codigo: x.codigo,
+      nombre: x.nombre,
+      email_contacto: x.contacto || 'Sin contacto',
+      ruc: '🔒 Encriptado (AES-256)',
+      activo: x.activo
     })));
   } catch (e) { next(e); }
 }
@@ -108,4 +130,4 @@ async function crearOrden(req, res, next) {
   } catch (e) { next(e); }
 }
 
-module.exports = { listarOrdenes, crearProveedor, crearOrden };
+module.exports = { listarOrdenes, listarProveedores, crearProveedor, crearOrden };

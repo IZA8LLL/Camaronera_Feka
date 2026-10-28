@@ -11,7 +11,13 @@ export function renderLogin(): string {
       <div class="login-page__bg"></div>
       <div class="login-card">
         <div class="login-card__brand">
-          <div class="login-card__logo">🦐</div>
+          <div class="login-card__logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#FFA726;">
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+              <path d="M12 6a6 6 0 0 0-6 6c0 2.5 1.5 4.5 4 5.5"/>
+              <circle cx="15" cy="9" r="1"/>
+            </svg>
+          </div>
           <h1 class="login-card__title">By Fekas Corp.</h1>
           <p class="login-card__desc">Sistema de Gestión de Camaroneras</p>
         </div>

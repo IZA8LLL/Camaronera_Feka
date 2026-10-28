@@ -33,7 +33,13 @@ export function renderAppShell(): void {
       <!-- Sidebar -->
       <aside class="layout__sidebar" id="app-sidebar">
         <div class="sidebar-brand">
-          <div class="sidebar-brand__icon">🦐</div>
+          <div class="sidebar-brand__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#FFA726;">
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+              <path d="M12 6a6 6 0 0 0-6 6c0 2.5 1.5 4.5 4 5.5"/>
+              <circle cx="15" cy="9" r="1"/>
+            </svg>
+          </div>
           <div class="sidebar-brand__text">
             <h2>BY FEKAS CORP</h2>
             <span>ERP Camaronera</span>
@@ -42,48 +48,42 @@ export function renderAppShell(): void {
 
         <nav class="sidebar-nav">
           <div class="sidebar-section">
-            <div class="sidebar-section__title">Operaciones</div>
+            <div class="sidebar-section__title">OPERACIONES</div>
             <a href="#/dashboard" class="nav-item ${path === '/dashboard' ? 'active' : ''}">
-              <span class="nav-item__icon">📊</span>
               <span>Dashboard</span>
             </a>
             <a href="#/piscinas" class="nav-item ${path === '/piscinas' ? 'active' : ''}">
-              <span class="nav-item__icon">🏊</span>
               <span>Piscinas / Estanques</span>
             </a>
           </div>
 
           <div class="sidebar-section">
-            <div class="sidebar-section__title">Registros de Campo</div>
+            <div class="sidebar-section__title">REGISTROS DE CAMPO</div>
             <a href="#/form-muestreo" class="nav-item ${path === '/form-muestreo' ? 'active' : ''}">
-              <span class="nav-item__icon">🔬</span>
               <span>Muestreo Biométrico</span>
             </a>
             <a href="#/form-agua" class="nav-item ${path === '/form-agua' ? 'active' : ''}">
-              <span class="nav-item__icon">💧</span>
               <span>Parámetros de Agua</span>
             </a>
             <a href="#/form-alimentacion" class="nav-item ${path === '/form-alimentacion' ? 'active' : ''}">
-              <span class="nav-item__icon">🍤</span>
               <span>Alimentación (Kardex)</span>
             </a>
           </div>
 
           <div class="sidebar-section">
-            <div class="sidebar-section__title">Cadena de Suministro</div>
+            <div class="sidebar-section__title">CADENA DE SUMINISTRO</div>
             <a href="#/compras" class="nav-item ${path === '/compras' ? 'active' : ''}">
-              <span class="nav-item__icon">📦</span>
               <span>Compras & Proveedores</span>
             </a>
           </div>
         </nav>
 
-        <div style="padding:16px; margin-top:auto; border-top:1px solid var(--border-color); font-size:var(--font-xs); color:var(--text-muted);">
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-            <span style="color:var(--success); font-size:0.8rem;">●</span>
-            <span style="font-weight:600; color:var(--text-secondary);">by_fekas_corp_db</span>
+        <div class="sidebar-footer">
+          <div class="sidebar-footer__db">
+            <span class="db-indicator">●</span>
+            <span class="db-name">by_fekas_corp_db</span>
           </div>
-          <div>Tenant: <span style="font-family:monospace; color:var(--accent-primary);">${tenantShort}</span></div>
+          <div class="sidebar-footer__tenant">Tenant: <span class="tenant-code">${tenantShort}</span></div>
         </div>
       </aside>
 
@@ -92,7 +92,7 @@ export function renderAppShell(): void {
         <header class="layout__topbar">
           <div style="display:flex; align-items:center; gap:16px;">
             <button id="btn-toggle-menu" class="btn btn--ghost btn--sm" style="display:none;" aria-label="Abrir menú">
-              ☰
+              Menú
             </button>
             <h1 class="topbar__title">${currentRoute.title}</h1>
           </div>
@@ -101,13 +101,13 @@ export function renderAppShell(): void {
             <div class="topbar__user">
               <div class="topbar__avatar">${userInitial}</div>
               <div style="display:flex; flex-direction:column;">
-                <span class="topbar__name">${user?.nombre || 'Operador'}</span>
-                <span style="font-size:0.7rem; color:var(--text-muted);">${user?.email || 'admin@byfekas.com'}</span>
+                <span class="topbar__name">${user?.nombre || 'Administrador Inicial'}</span>
+                <span class="topbar__email">${user?.email || 'admin@fekascorp.com'}</span>
               </div>
             </div>
 
-            <button class="btn btn--secondary btn--sm" id="btn-logout" title="Cerrar Sesión">
-              <span>Salir</span> ✕
+            <button class="btn btn-logout-corporate btn--sm" id="btn-logout" title="Cerrar Sesión">
+              Salir
             </button>
           </div>
         </header>

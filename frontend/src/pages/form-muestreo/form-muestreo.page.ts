@@ -16,7 +16,7 @@ export function renderFormMuestreo(): string {
   return `
     <div class="page-header">
       <div>
-        <h1 class="page-header__title">🔬 Muestreo Biométrico${titleExtra}</h1>
+        <h1 class="page-header__title">Muestreo Biométrico${titleExtra}</h1>
         <p class="page-header__subtitle">Registro de peso, talla y biomasa estimada</p>
       </div>
       <button class="btn btn--ghost btn--sm" onclick="history.back()">← Volver</button>

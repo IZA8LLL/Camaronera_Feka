@@ -77,7 +77,7 @@ async function authenticate(req, res, next) {
 
 // Middleware de autorización por recurso:acción
 const permit = (resource, action) => (req, res, next) => {
-  if (req.auth.grants.has(`${resource}:${action}`)) return next();
+  if (req.auth?.isAdmin || req.auth?.grants?.has(`${resource}:${action}`)) return next();
   return res.status(403).json({ error: 'Permiso denegado' });
 };
 

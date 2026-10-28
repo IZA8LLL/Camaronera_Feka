@@ -8,6 +8,7 @@
     "dev": "nodemon src/server.js",
     "bootstrap": "node src/server.js bootstrap",
     "seed": "node seeds/seed_camaronera_data.js",
+    "seed:bulk": "node src/scripts/load_sample_data.js",
     "test": "node --test"
   },
   "dependencies": {

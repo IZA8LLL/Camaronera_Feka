@@ -31,7 +31,6 @@ export async function initPiscinasList() {
     if (pools.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state__icon">🏊</div>
           <p class="empty-state__text">No hay piscinas registradas en su cuenta</p>
         </div>
       `;
@@ -42,8 +41,7 @@ export async function initPiscinasList() {
   } catch {
     container.innerHTML = `
       <div class="empty-state">
-        <div class="empty-state__icon">⚠️</div>
-        <p class="empty-state__text">Error al cargar piscinas. Verifique la conexión.</p>
+        <p class="empty-state__text">Error al cargar piscinas. Verifique la conexión con el servidor.</p>
       </div>
     `;
   }
@@ -86,7 +84,7 @@ function renderPoolCard(p: PiscinaRow, index: number): string {
         </div>
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
           ${statusBadge}
-          ${p.alerta ? '<span class="badge badge--danger" style="animation:pulse 2s infinite;">⚠ Alerta</span>' : ''}
+          ${p.alerta ? '<span class="badge badge--danger">Alerta</span>' : ''}
         </div>
       </div>
 
@@ -128,13 +126,13 @@ function renderPoolCard(p: PiscinaRow, index: number): string {
       ${p.ciclo_id ? `
       <div class="pool-card__actions">
         <button class="btn btn--secondary btn--sm" onclick="event.stopPropagation(); location.hash='#/form-muestreo?piscina=${p.id}&granja=${p.granja_id}&ciclo=${p.ciclo_id}&codigo=${p.codigo}'">
-          🔬 Muestreo
+          Muestreo
         </button>
         <button class="btn btn--secondary btn--sm" onclick="event.stopPropagation(); location.hash='#/form-agua?piscina=${p.id}&granja=${p.granja_id}&ciclo=${p.ciclo_id}&codigo=${p.codigo}'">
-          💧 Agua
+          Agua
         </button>
         <button class="btn btn--secondary btn--sm" onclick="event.stopPropagation(); location.hash='#/form-alimentacion?piscina=${p.id}&granja=${p.granja_id}&ciclo=${p.ciclo_id}&codigo=${p.codigo}'">
-          🍤 Alimento
+          Alimento
         </button>
       </div>
       ` : ''}

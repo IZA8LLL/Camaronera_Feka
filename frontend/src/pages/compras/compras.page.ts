@@ -9,7 +9,7 @@ export function renderCompras(): string {
   return `
     <div class="page-header">
       <div>
-        <h1 class="page-header__title">📦 Compras & Proveedores</h1>
+        <h1 class="page-header__title">Compras & Proveedores</h1>
         <p class="page-header__subtitle">Control de insumos, proveedores seguros (AES-256) y órdenes</p>
       </div>
       <button class="btn btn--primary btn--sm" id="btn-toggle-modal-prov">
@@ -20,8 +20,8 @@ export function renderCompras(): string {
     <!-- Modal Nuevo Proveedor -->
     <div id="modal-prov" class="card animate-card-enter" style="display:none; margin-bottom:24px; border:1px solid var(--accent-primary);">
       <div class="card__header">
-        <h2 class="card__title">🔒 Registrar Proveedor (Datos Cifrados AES-256)</h2>
-        <button class="btn btn--ghost btn--sm" id="btn-close-modal-prov">✕ Cerrar</button>
+        <h2 class="card__title">Registrar Proveedor (Datos Cifrados AES-256)</h2>
+        <button class="btn btn--ghost btn--sm" id="btn-close-modal-prov">Cerrar</button>
       </div>
       <form id="form-nuevo-prov">
         <div class="form-row">
@@ -60,7 +60,7 @@ export function renderCompras(): string {
       <!-- Proveedores -->
       <div class="card animate-card-enter delay-1">
         <div class="card__header">
-          <h2 class="card__title">🏢 Directorio de Proveedores</h2>
+          <h2 class="card__title">Directorio de Proveedores</h2>
         </div>
         <div id="container-proveedores">
           <div class="loading-overlay">
@@ -73,7 +73,7 @@ export function renderCompras(): string {
       <!-- Órdenes de Compra -->
       <div class="card animate-card-enter delay-2">
         <div class="card__header">
-          <h2 class="card__title">📑 Órdenes de Compra de Insumos</h2>
+          <h2 class="card__title">Órdenes de Compra de Insumos</h2>
         </div>
         <div id="container-ordenes">
           <div class="loading-overlay">
@@ -133,7 +133,6 @@ export async function initCompras() {
       if (!proveedores || proveedores.length === 0) {
         containerProv.innerHTML = `
           <div class="empty-state">
-            <div class="empty-state__icon">🏢</div>
             <p class="empty-state__text">No hay proveedores registrados aún</p>
           </div>
         `;
@@ -154,7 +153,7 @@ export async function initCompras() {
               ${proveedores.map(p => `
                 <tr>
                   <td style="font-weight:600;">${p.nombre}</td>
-                  <td>${p.ruc || '🔒 Encriptado'}</td>
+                  <td>${p.ruc || 'Encriptado'}</td>
                   <td>${p.email_contacto || '—'}</td>
                   <td><span class="badge badge--success">AES-256-GCM</span></td>
                 </tr>
@@ -174,7 +173,6 @@ export async function initCompras() {
       if (!ordenes || ordenes.length === 0) {
         containerOrd.innerHTML = `
           <div class="empty-state">
-            <div class="empty-state__icon">📑</div>
             <p class="empty-state__text">No hay órdenes de compra registradas</p>
           </div>
         `;
