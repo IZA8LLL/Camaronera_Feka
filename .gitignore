@@ -7,23 +7,68 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Dependencies and build outputs
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+dist/
+dist-ssr/
+frontend/dist/
 *.local
 
-# Environment variables
+# Environment variables and secrets
 .env
 .env.*
 !.env.example
 backend/.env
 backend/.env.*
 !backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+*.secret
+*.credentials
+credentials/
+secrets/
+credenciales/
+
+# Certificados y claves criptográficas de seguridad
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+*.keystore
+*.jks
+
+# Documentos confidenciales, informes y ofimática
+entregables/
+*.docx
+*.doc
+*.pptx
+*.ppt
+*.pdf
+*.xlsx
+*.xls
+*.csv
+docs/informe-parcial-i.md
+GUIA_ENTREGA.md
+
+# Volcados y respaldos de bases de datos
+*.dump
+*.sql
+*.sqlite
+*.sqlite3
+*.bak
+*.bson
+backups/
+dumps/
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
