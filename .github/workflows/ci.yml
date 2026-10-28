@@ -1,32 +1,49 @@
-name: CI Backend Fekas Corp
+name: CI Camaronera
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop, "feature/**", "fix/**"]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+
+permissions:
+  contents: read
 
 jobs:
-  build:
+  frontend:
+    name: Frontend build
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [22.x]
-
+    defaults:
+      run:
+        working-directory: frontend
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Configurar Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        
-    - name: Instalar dependencias del Backend
-      run: |
-        cd backend
-        npm install
-        
-    - name: Verificar integracion
-      run: |
-        echo "Pipeline ejecutado con exito para Fekas Corp ERP"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  backend:
+    name: Backend validation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          while IFS= read -r file; do
+            node --check "$file"
+          done < <(find src -type f -name '*.js' -print)
