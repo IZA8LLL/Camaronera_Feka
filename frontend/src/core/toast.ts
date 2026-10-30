@@ -4,12 +4,6 @@
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
 
-const ICONS: Record<ToastType, string> = {
-  success: '✓',
-  error: '✕',
-  warning: '⚠',
-  info: 'ℹ'
-};
 
 let container: HTMLDivElement | null = null;
 
@@ -26,7 +20,7 @@ export function showToast(message: string, type: ToastType = 'info', duration = 
   const c = ensureContainer();
   const toast = document.createElement('div');
   toast.className = `toast toast--${type}`;
-  toast.innerHTML = `<span>${ICONS[type]}</span><span>${message}</span>`;
+  toast.innerHTML = `<span style="font-weight:600;">${message}</span>`;
   c.appendChild(toast);
 
   setTimeout(() => {

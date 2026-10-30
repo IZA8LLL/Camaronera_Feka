@@ -16,7 +16,7 @@ export function renderFormAlimentacion(): string {
   return `
     <div class="page-header">
       <div>
-        <h1 class="page-header__title">🍤 Registro de Alimentación${titleExtra}</h1>
+        <h1 class="page-header__title">Registro de Alimentación${titleExtra}</h1>
         <p class="page-header__subtitle">Consumo diario de alimento con descuento de inventario</p>
       </div>
       <button class="btn btn--ghost btn--sm" onclick="history.back()">← Volver</button>
@@ -77,7 +77,7 @@ export function renderFormAlimentacion(): string {
 
         <div style="background:var(--info-dim); border:1px solid rgba(139,92,246,0.3); border-radius:var(--radius-sm); padding:12px; margin-bottom:16px;">
           <div style="font-size:var(--font-xs); color:var(--info);">
-            💡 Esta operación descuenta el alimento del inventario y registra un movimiento en el Kardex de forma transaccional.
+            Nota: Esta operación descuenta el alimento del inventario y registra un movimiento en el Kardex de forma transaccional.
           </div>
         </div>
 

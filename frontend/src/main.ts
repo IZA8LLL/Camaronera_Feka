@@ -20,3 +20,10 @@ renderAppShell();
 window.addEventListener('hashchange', () => {
   renderAppShell();
 });
+
+// Soporte HMR para recarga instantánea durante desarrollo
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    renderAppShell();
+  });
+}

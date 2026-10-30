@@ -16,7 +16,7 @@ export function renderFormAgua(): string {
   return `
     <div class="page-header">
       <div>
-        <h1 class="page-header__title">💧 Parámetros de Agua${titleExtra}</h1>
+        <h1 class="page-header__title">Parámetros de Agua${titleExtra}</h1>
         <p class="page-header__subtitle">Registro de oxígeno, pH, salinidad, temperatura y amonio</p>
       </div>
       <button class="btn btn--ghost btn--sm" onclick="history.back()">← Volver</button>
@@ -47,13 +47,13 @@ export function renderFormAgua(): string {
         </div>
 
         <div style="background:var(--bg-glass); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; margin-bottom:20px;">
-          <div style="font-size:var(--font-sm); font-weight:600; margin-bottom:12px; color:var(--accent-primary);">📊 Parámetros Fisicoquímicos</div>
+          <div style="font-size:var(--font-sm); font-weight:600; margin-bottom:12px; color:var(--accent-primary);">Parámetros Fisicoquímicos</div>
 
           <div class="form-row">
             <div class="form-group">
               <label class="form-label" for="a-oxigeno">Oxígeno disuelto (mg/L)</label>
               <input class="form-input" type="number" id="a-oxigeno" step="0.01" min="0.000001" max="30" required placeholder="ej: 6.5" />
-              <span class="form-hint">⚠ Alerta si &lt; 4 mg/L</span>
+              <span class="form-hint">Alerta si &lt; 4 mg/L</span>
             </div>
             <div class="form-group">
               <label class="form-label" for="a-salinidad">Salinidad (ppt)</label>
@@ -65,7 +65,7 @@ export function renderFormAgua(): string {
             <div class="form-group">
               <label class="form-label" for="a-ph">pH</label>
               <input class="form-input" type="number" id="a-ph" step="0.01" min="0" max="14" required placeholder="ej: 7.8" />
-              <span class="form-hint">⚠ Alerta si &lt; 7 o &gt; 9</span>
+              <span class="form-hint">Alerta si &lt; 7 o &gt; 9</span>
             </div>
             <div class="form-group">
               <label class="form-label" for="a-temp">Temperatura (°C)</label>
@@ -76,7 +76,7 @@ export function renderFormAgua(): string {
           <div class="form-group" style="margin-bottom:0;">
             <label class="form-label" for="a-amonio">Amonio (mg/L)</label>
             <input class="form-input" type="number" id="a-amonio" step="0.01" min="0" max="50" required placeholder="ej: 0.5" />
-            <span class="form-hint">⚠ Alerta si &gt; 1 mg/L</span>
+            <span class="form-hint">Alerta si &gt; 1 mg/L</span>
           </div>
         </div>
 
@@ -133,7 +133,7 @@ export function initFormAgua() {
 
       const alerta = (result as { alerta?: boolean })?.alerta;
       if (alerta) {
-        showToast('Parámetros registrados — ⚠ Se generó una ALERTA', 'warning');
+        showToast('Parámetros registrados — Se generó una ALERTA', 'warning');
       } else {
         showToast('Parámetros de agua registrados exitosamente', 'success');
       }
@@ -165,7 +165,7 @@ function updatePreview() {
     preview.style.display = 'block';
     preview.innerHTML = `
       <div style="background:var(--danger-dim); border:1px solid rgba(239,68,68,0.3); border-radius:var(--radius-sm); padding:12px;">
-        <div style="font-weight:600; color:var(--danger); font-size:var(--font-sm); margin-bottom:6px;">⚠ Alertas detectadas:</div>
+        <div style="font-weight:600; color:var(--danger); font-size:var(--font-sm); margin-bottom:6px;">Alertas detectadas:</div>
         ${alerts.map(a => `<div style="font-size:var(--font-xs); color:var(--danger); padding:2px 0;">• ${a}</div>`).join('')}
       </div>
     `;

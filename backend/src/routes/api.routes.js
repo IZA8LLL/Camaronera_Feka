@@ -57,7 +57,10 @@ router.post('/ordenes', permit('compras', 'crear'), validate(orderDto), crearOrd
 router.post('/ordenes-compra', permit('compras', 'crear'), validate(orderDto), crearOrden);
 
 // ─── Proveedores ──────────────────────────────────────────
-router.get('/proveedores', permit('compras', 'leer'), listarProveedores);
+router.get('/proveedores', (req, res, next) => {
+  if (req.auth?.isAdmin || req.auth?.grants?.has('compras:leer') || req.auth?.grants?.has('proveedores:leer')) return next();
+  return res.status(403).json({ error: 'Permiso denegado' });
+}, listarProveedores);
 router.post('/proveedores', permit('proveedores', 'crear'), validate(providerDto), crearProveedor);
 
 // ─── Logout ───────────────────────────────────────────────

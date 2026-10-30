@@ -14,11 +14,11 @@ async function listarProveedores(req, res, next) {
     const rows = await Proveedor.find({ tenant_id: req.auth.tenantId })
       .sort({ nombre: 1 })
       .limit(100)
-      .select('+ruc_cifrado +ruc_iv +ruc_tag')
+      .select('codigo nombre contacto activo +ruc_cifrado +ruc_iv +ruc_tag')
       .lean();
 
     res.json(rows.map(x => {
-      let ruc = '🔒 Encriptado';
+      let ruc = '🔒 Encriptado (AES-256)';
       if (x.ruc_cifrado && x.ruc_iv && x.ruc_tag) {
         try {
           const bData = Buffer.isBuffer(x.ruc_cifrado) ? x.ruc_cifrado : Buffer.from(x.ruc_cifrado.buffer || x.ruc_cifrado);
@@ -27,7 +27,7 @@ async function listarProveedores(req, res, next) {
           const decRuc = decrypt(bData, bIv, bTag);
           ruc = decRuc.slice(0, 4) + '****' + decRuc.slice(-3);
         } catch {
-          ruc = '🔒 Encriptado';
+          ruc = '🔒 Encriptado (AES-256)';
         }
       }
       return {
@@ -37,14 +37,14 @@ async function listarProveedores(req, res, next) {
         nombre: x.nombre,
         ruc,
         contacto: x.contacto || '',
-        email_contacto: x.contacto || '',
+        email_contacto: x.contacto || 'Sin contacto',
         activo: x.activo
       };
     }));
   } catch (e) { next(e); }
 }
 
-// GET /api/ordenes y /api/ordenes-compra
+// GET /api/ordenes (o /api/ordenes-compra)
 async function listarOrdenes(req, res, next) {
   try {
     const rows = await Orden.find({})
