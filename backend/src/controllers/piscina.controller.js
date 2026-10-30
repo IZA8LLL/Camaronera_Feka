@@ -1,33 +1,39 @@
 'use strict';
 /* Controlador de Piscinas: lectura de estanques con estado actual.
    Para cada piscina devuelve el último registro de agua, ciclo activo y FCA. */
-const { Piscina } = require('../models/piscina.model');
-const { Ciclo } = require('../models/ciclo.model');
+const mongoose = require('mongoose');
 const { Agua } = require('../models/agua.model');
+const { Ciclo } = require('../models/ciclo.model');
 const { Consumo } = require('../models/consumo.model');
 
 // GET /api/piscinas
 async function listarPiscinas(req, res, next) {
   try {
-    const pools = await Piscina.find({})
-      .select('codigo granja_id area_ha estado capacidad_m3 profundidad_m')
-      .limit(100)
-      .lean();
+    const pools = await mongoose.connection.db.collection('piscinas_estanques')
+      .find({ tenant_id: req.auth.tenantId })
+      .sort({ codigo: 1 })
+      .toArray();
 
     const rows = await Promise.all(pools.map(async (p) => {
-      const [agua, ciclo, consumo] = await Promise.all([
+      const [agua, ciclo, consumo, granja] = await Promise.all([
         Agua.findOne({ piscina_id: p._id }).sort({ fecha: -1 })
           .select('oxigeno_mg_l salinidad_ppt ph temperatura_c amonio_mg_l alerta fecha').lean(),
         Ciclo.findOne({ piscina_id: p._id, estado: 'activo' })
           .select('biomasa_estimada_kg codigo especie fecha_inicio').lean(),
         Consumo.findOne({ piscina_id: p._id }).sort({ fecha: -1 })
-          .select('fca cantidad_kg fecha').lean()
+          .select('fca cantidad_kg fecha').lean(),
+        mongoose.connection.db.collection('granjas_camaroneras').findOne(
+          { _id: p.granja_id },
+          { projection: { nombre: 1, codigo: 1 } }
+        )
       ]);
 
       return {
         id: String(p._id),
         codigo: p.codigo,
         granja_id: String(p.granja_id),
+        granja_nombre: granja?.nombre || (granja?.codigo ? `Granja ${granja.codigo}` : 'Granja Principal'),
+        granja_codigo: granja?.codigo || 'GRA-01',
         area_ha: p.area_ha?.toString(),
         profundidad_m: p.profundidad_m?.toString(),
         capacidad_m3: p.capacidad_m3?.toString(),
