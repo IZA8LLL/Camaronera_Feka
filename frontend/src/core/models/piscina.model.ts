@@ -6,6 +6,8 @@ export interface PiscinaRow {
   id: string;
   codigo: string;
   granja_id: string;
+  granja_nombre?: string;
+  granja_codigo?: string;
   area_ha: string | null;
   profundidad_m: string | null;
   capacidad_m3: string | null;

@@ -13,6 +13,15 @@ async function mockApi(page: Page, authenticated = true) {
   await page.route('**/api/**', async route => {
     const path = new URL(route.request().url()).pathname;
     const body = path === '/api/piscinas' ? pools
+      : path === '/api/granjas' ? [{ id: ids.granja, _id: ids.granja, nombre: 'Granja Principal', codigo: 'G-01' }]
+      : path === '/api/ciclos/siguiente' ? {
+          year: 2026,
+          total_registrados: 1,
+          siguiente_codigo: 'C-2026-01',
+          siguiente_id: ids.ciclo,
+          ciclos_existentes: [{ id: ids.ciclo, codigo: 'C-2026-01', estado: 'activo', piscina_id: ids.piscina, granja_id: ids.granja }]
+        }
+      : path === '/api/lotes' ? [{ id: ids.lote, _id: ids.lote, codigo_lote: 'L-2026-01', cantidad_actual: 500, granja_id: ids.granja, bodega_id: 'b-01', costo_unitario: 1.5 }]
       : path === '/api/proveedores' && route.request().method() === 'GET' ? [{ id: 'provider-1', nombre: 'Balanceados del Pacífico', email_contacto: 'ventas@example.test', activo: true }]
       : path === '/api/ordenes' ? [{ numero_orden: 'OC-2026-004', fecha: '2026-10-29T12:00:00Z', estado: 'aprobada', total: 2450 }]
       : { id: 'registro-prueba', alerta: false };
@@ -102,7 +111,15 @@ for (const operation of operations) {
     await page.locator('.pool-card').first().getByRole('link', { name: operation.link, exact: true }).click();
     for (const key of ['granja', 'piscina', 'ciclo'] as const) await expect(page.locator(`#${operation.prefix}-${key}`)).toHaveValue(ids[key]);
     await page.locator(`#${operation.prefix}-fecha`).fill('2026-10-30T09:30');
-    for (const [field, value] of Object.entries(operation.fields)) await page.locator(`#${operation.prefix}-${field}`).fill(value!);
+    for (const [field, value] of Object.entries(operation.fields)) {
+      const locator = page.locator(`#${operation.prefix}-${field}`);
+      const tagName = await locator.evaluate(el => el.tagName.toLowerCase());
+      if (tagName === 'select') {
+        await locator.selectOption(value!);
+      } else {
+        await locator.fill(value!);
+      }
+    }
     if (operation.path === 'form-agua') {
       await page.locator('#a-oxigeno').fill('3.5');
       await expect(page.locator('#a-preview')).toContainText('O₂ bajo');
