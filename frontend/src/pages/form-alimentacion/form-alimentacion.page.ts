@@ -3,27 +3,23 @@
    ═══════════════════════════════════════════════════════════ */
 import { crearAlimentacion } from '../../services/operacion.service.ts';
 import { showToast } from '../../core/toast.ts';
+import { escapeHtml, formIntro, pageHeader } from '../../shared/ui.ts';
 
 function getParam(key: string): string {
   const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
-  return params.get(key) || '';
+  return escapeHtml(params.get(key) || '');
 }
 
 export function renderFormAlimentacion(): string {
-  const codigo = getParam('codigo');
+  const codigo = new URLSearchParams(window.location.hash.split('?')[1] || '').get('codigo');
   const titleExtra = codigo ? ` — Piscina ${codigo}` : '';
 
   return `
-    <div class="page-header">
-      <div>
-        <h1 class="page-header__title">Registro de Alimentación${titleExtra}</h1>
-        <p class="page-header__subtitle">Consumo diario de alimento con descuento de inventario</p>
-      </div>
-      <button class="btn btn--ghost btn--sm" onclick="history.back()">← Volver</button>
-    </div>
+    ${pageHeader(`Alimentación${titleExtra}`, 'Lleva el control del consumo diario y las existencias de alimento.', 'Trabajo de campo / Alimentación', '<button class="btn btn--ghost btn--sm" data-back>← Volver</button>')}
 
-    <div class="card" style="max-width:680px;">
+    <div class="card form-card">
       <form id="alimentacion-form">
+        ${formIntro('01', 'Origen y destino', 'Identifica la piscina, el ciclo y el lote de alimento utilizado.')}
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="al-granja">Granja ID</label>
@@ -42,11 +38,12 @@ export function renderFormAlimentacion(): string {
           </div>
           <div class="form-group">
             <label class="form-label" for="al-lote">Lote de Inventario ID</label>
-            <input class="form-input" type="text" id="al-lote" required pattern="[a-fA-F0-9]{24}" placeholder="ObjectId del lote de alimento" />
+            <input class="form-input" type="text" id="al-lote" required pattern="[a-fA-F0-9]{24}" placeholder="Identificador del lote de alimento" />
             <span class="form-hint">Se descontará del inventario</span>
           </div>
         </div>
 
+        ${formIntro('02', 'Detalle del consumo', 'Indica la cantidad suministrada y los datos de seguimiento disponibles.')}
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="al-fecha">Fecha y hora</label>
@@ -75,14 +72,12 @@ export function renderFormAlimentacion(): string {
           <textarea class="form-input" id="al-obs" maxlength="1000" rows="3" placeholder="Notas de la alimentación…"></textarea>
         </div>
 
-        <div style="background:var(--info-dim); border:1px solid rgba(139,92,246,0.3); border-radius:var(--radius-sm); padding:12px; margin-bottom:16px;">
-          <div style="font-size:var(--font-xs); color:var(--info);">
-            Nota: Esta operación descuenta el alimento del inventario y registra un movimiento en el Kardex de forma transaccional.
-          </div>
+        <div class="form-note">
+          Al guardar, se descuenta el alimento del lote seleccionado y se registra la salida en el Kardex.
         </div>
 
-        <div style="display:flex; gap:12px; justify-content:flex-end;">
-          <button type="button" class="btn btn--secondary" onclick="history.back()">Cancelar</button>
+        <div class="form-actions">
+          <button type="button" class="btn btn--secondary" data-back>Cancelar</button>
           <button type="submit" class="btn btn--primary" id="al-submit">
             <span id="al-btn-text">Registrar Alimentación</span>
             <div id="al-spinner" class="spinner" style="display:none; width:16px; height:16px; border-width:2px;"></div>

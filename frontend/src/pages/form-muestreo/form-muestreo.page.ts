@@ -3,42 +3,38 @@
    ═══════════════════════════════════════════════════════════ */
 import { crearMuestreo } from '../../services/operacion.service.ts';
 import { showToast } from '../../core/toast.ts';
+import { escapeHtml, formIntro, pageHeader } from '../../shared/ui.ts';
 
 function getParam(key: string): string {
   const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
-  return params.get(key) || '';
+  return escapeHtml(params.get(key) || '');
 }
 
 export function renderFormMuestreo(): string {
-  const codigo = getParam('codigo');
+  const codigo = new URLSearchParams(window.location.hash.split('?')[1] || '').get('codigo');
   const titleExtra = codigo ? ` — Piscina ${codigo}` : '';
 
   return `
-    <div class="page-header">
-      <div>
-        <h1 class="page-header__title">Muestreo Biométrico${titleExtra}</h1>
-        <p class="page-header__subtitle">Registro de peso, talla y biomasa estimada</p>
-      </div>
-      <button class="btn btn--ghost btn--sm" onclick="history.back()">← Volver</button>
-    </div>
+    ${pageHeader(`Muestreo biométrico${titleExtra}`, 'Registra el crecimiento y la biomasa estimada de tu cultivo.', 'Trabajo de campo / Muestreo', '<button class="btn btn--ghost btn--sm" data-back>← Volver</button>')}
 
-    <div class="card" style="max-width:680px;">
+    <div class="card form-card">
       <form id="muestreo-form">
+        ${formIntro('01', 'Ubicación del registro', 'Los identificadores se completan al ingresar desde una piscina.')}
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="m-granja">Granja ID</label>
-            <input class="form-input" type="text" id="m-granja" value="${getParam('granja')}" required pattern="[a-fA-F0-9]{24}" placeholder="ObjectId de la granja" />
+            <input class="form-input" type="text" id="m-granja" value="${getParam('granja')}" required pattern="[a-fA-F0-9]{24}" placeholder="Identificador de la granja" />
           </div>
           <div class="form-group">
             <label class="form-label" for="m-piscina">Piscina ID</label>
-            <input class="form-input" type="text" id="m-piscina" value="${getParam('piscina')}" required pattern="[a-fA-F0-9]{24}" placeholder="ObjectId de la piscina" />
+            <input class="form-input" type="text" id="m-piscina" value="${getParam('piscina')}" required pattern="[a-fA-F0-9]{24}" placeholder="Identificador de la piscina" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="m-ciclo">Ciclo ID</label>
-            <input class="form-input" type="text" id="m-ciclo" value="${getParam('ciclo')}" required pattern="[a-fA-F0-9]{24}" placeholder="ObjectId del ciclo activo" />
+            <input class="form-input" type="text" id="m-ciclo" value="${getParam('ciclo')}" required pattern="[a-fA-F0-9]{24}" placeholder="Identificador del ciclo activo" />
           </div>
           <div class="form-group">
             <label class="form-label" for="m-fecha">Fecha y hora</label>
@@ -46,6 +42,7 @@ export function renderFormMuestreo(): string {
           </div>
         </div>
 
+        ${formIntro('02', 'Datos de la muestra', 'Registra peso, talla y cantidad de individuos observados.')}
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="m-peso">Peso promedio (g)</label>
@@ -75,8 +72,8 @@ export function renderFormMuestreo(): string {
           <textarea class="form-input" id="m-obs" maxlength="1000" rows="3" placeholder="Notas del muestreo…"></textarea>
         </div>
 
-        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:8px;">
-          <button type="button" class="btn btn--secondary" onclick="history.back()">Cancelar</button>
+        <div class="form-actions">
+          <button type="button" class="btn btn--secondary" data-back>Cancelar</button>
           <button type="submit" class="btn btn--primary" id="m-submit">
             <span id="m-btn-text">Registrar Muestreo</span>
             <div id="m-spinner" class="spinner" style="display:none; width:16px; height:16px; border-width:2px;"></div>

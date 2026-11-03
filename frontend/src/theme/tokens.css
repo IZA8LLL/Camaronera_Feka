@@ -1,0 +1,45 @@
+/* Paleta pizarra. Color reservado para estados operativos. */
+:root {
+  color-scheme: dark;
+  --bg-primary: #15191c;
+  --bg-secondary: #101416;
+  --bg-tertiary: #2b3237;
+  --bg-topbar: #15191c;
+  --bg-card: #1c2226;
+  --bg-card-hover: #242b30;
+  --bg-subsurface: #181d21;
+  --bg-input: #151b1f;
+  --bg-glass: #ffffff04;
+  --bg-glass-strong: #ffffff08;
+  --text-primary: #edf0f2;
+  --text-primary-on-dark: #edf0f2;
+  --text-secondary: #b5bec5;
+  --text-muted: #98a4ad;
+  --accent-primary: #d2d6da;
+  --accent-primary-dim: #d2d6da1f;
+  --border-color: #343e45;
+  --border-dark: #2a3339;
+  --border-glow: #78828a;
+  --success: #a5c8b2;
+  --success-dim: #a5c8b211;
+  --warning: #dcc596;
+  --warning-dim: #dcc59612;
+  --danger: #efa5a5;
+  --danger-dim: #efa5a512;
+  --info: #b8c9d6;
+  --info-dim: #b8c9d612;
+  --shadow-lg: 0 18px 60px #0005;
+  --radius-sm: 7px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-xs: .75rem;
+  --font-sm: .8125rem;
+  --font-base: .875rem;
+  --font-md: 1rem;
+  --font-lg: 1.25rem;
+  --font-xl: 1.5rem;
+  --sidebar-width: 244px;
+  --transition-fast: 160ms ease;
+}

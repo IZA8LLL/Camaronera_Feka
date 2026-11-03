@@ -2,25 +2,17 @@
    Compras Page — Proveedores y Órdenes de Insumos
    ═══════════════════════════════════════════════════════════ */
 import { fetchProveedores, fetchOrdenes, crearProveedor } from '../../services/compras.service.ts';
-import type { Proveedor, OrdenCompra } from '../../core/models/index.ts';
 import { showToast } from '../../core/toast.ts';
+import { escapeHtml, icon, pageHeader } from '../../shared/ui.ts';
 
 export function renderCompras(): string {
   return `
-    <div class="page-header">
-      <div>
-        <h1 class="page-header__title">Compras & Proveedores</h1>
-        <p class="page-header__subtitle">Control de insumos, proveedores seguros (AES-256) y órdenes</p>
-      </div>
-      <button class="btn btn--primary btn--sm" id="btn-toggle-modal-prov">
-        + Nuevo Proveedor
-      </button>
-    </div>
+    ${pageHeader('Compras y proveedores', 'Tu red de abastecimiento y las órdenes de insumos, en un solo lugar.', 'Abastecimiento', `<button class="btn btn--primary" id="btn-toggle-modal-prov" aria-controls="modal-prov" aria-expanded="false">${icon('plus')} Nuevo proveedor</button>`)}
 
     <!-- Modal Nuevo Proveedor -->
-    <div id="modal-prov" class="card animate-card-enter" style="display:none; margin-bottom:24px; border:1px solid var(--accent-primary);">
+    <section id="modal-prov" class="card provider-panel animate-card-enter" aria-labelledby="provider-title" style="display:none;">
       <div class="card__header">
-        <h2 class="card__title">Registrar Proveedor (Datos Cifrados AES-256)</h2>
+        <h2 class="card__title" id="provider-title">Registrar proveedor</h2>
         <button class="btn btn--ghost btn--sm" id="btn-close-modal-prov">Cerrar</button>
       </div>
       <form id="form-nuevo-prov">
@@ -30,7 +22,7 @@ export function renderCompras(): string {
             <input class="form-input" id="prov-nombre" required placeholder="Ej: Balanceados del Pacífico S.A." />
           </div>
           <div class="form-group">
-            <label class="form-label" for="prov-ruc">RUC * (Se cifra con AES-256)</label>
+            <label class="form-label" for="prov-ruc">RUC *</label>
             <input class="form-input" id="prov-ruc" required placeholder="0992345678001" pattern="\\d{13}" />
           </div>
         </div>
@@ -46,17 +38,17 @@ export function renderCompras(): string {
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label" for="prov-cuenta">Cuenta Bancaria (Cifrada con AES-256)</label>
+            <label class="form-label" for="prov-cuenta">Cuenta bancaria</label>
             <input class="form-input" id="prov-cuenta" placeholder="Cta Cte Banco Pichincha ..." />
           </div>
         </div>
-        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:16px;">
-          <button type="submit" class="btn btn--primary" id="btn-submit-prov">Guardar Proveedor Cifrado</button>
+        <div class="form-actions">
+          <button type="submit" class="btn btn--primary" id="btn-submit-prov">Guardar proveedor</button>
         </div>
       </form>
-    </div>
+    </section>
 
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <div class="purchases-grid">
       <!-- Proveedores -->
       <div class="card animate-card-enter delay-1">
         <div class="card__header">
@@ -94,12 +86,16 @@ export async function initCompras() {
   const btnClose = document.getElementById('btn-close-modal-prov')!;
   const formProv = document.getElementById('form-nuevo-prov') as HTMLFormElement;
 
-  btnToggle.addEventListener('click', () => {
-    modalProv.style.display = modalProv.style.display === 'none' ? 'block' : 'none';
-  });
+  function setProviderPanel(open: boolean) {
+    modalProv.style.display = open ? 'block' : 'none';
+    btnToggle.setAttribute('aria-expanded', String(open));
+    if (open) document.getElementById('prov-nombre')?.focus();
+    else btnToggle.focus();
+  }
+  btnToggle.addEventListener('click', () => setProviderPanel(modalProv.style.display === 'none'));
 
   btnClose.addEventListener('click', () => {
-    modalProv.style.display = 'none';
+    setProviderPanel(false);
   });
 
   formProv.addEventListener('submit', async (e) => {
@@ -116,7 +112,7 @@ export async function initCompras() {
       });
       showToast('Proveedor registrado con datos cifrados', 'success');
       formProv.reset();
-      modalProv.style.display = 'none';
+      setProviderPanel(false);
       cargarProveedores();
     } catch (err: unknown) {
       const msg = (err && typeof err === 'object' && 'error' in err)
@@ -140,22 +136,22 @@ export async function initCompras() {
       }
       containerProv.innerHTML = `
         <div class="table-wrapper">
-          <table class="table">
+          <table class="table" aria-label="Directorio de proveedores">
             <thead>
               <tr>
                 <th>Razón Social</th>
                 <th>RUC</th>
                 <th>Contacto</th>
-                <th>Seguridad</th>
+                <th>Datos sensibles</th>
               </tr>
             </thead>
             <tbody>
               ${proveedores.map(p => `
                 <tr>
-                  <td style="font-weight:600;">${p.nombre}</td>
-                  <td>${p.ruc || 'Encriptado'}</td>
-                  <td>${p.email_contacto || '—'}</td>
-                  <td><span class="badge badge--success">AES-256-GCM</span></td>
+                  <td class="text-strong">${escapeHtml(p.nombre)}</td>
+                  <td>${escapeHtml(p.ruc || 'Protegido')}</td>
+                  <td>${escapeHtml(p.email_contacto || '—')}</td>
+                  <td><span class="badge badge--neutral">Protegidos</span></td>
                 </tr>
               `).join('')}
             </tbody>
@@ -180,7 +176,7 @@ export async function initCompras() {
       }
       containerOrd.innerHTML = `
         <div class="table-wrapper">
-          <table class="table">
+          <table class="table" aria-label="Órdenes de compra">
             <thead>
               <tr>
                 <th>N° Orden</th>
@@ -192,9 +188,9 @@ export async function initCompras() {
             <tbody>
               ${ordenes.map(o => `
                 <tr>
-                  <td style="font-weight:600;">${o.numero_orden}</td>
+                  <td class="text-strong">${escapeHtml(o.numero_orden)}</td>
                   <td>${new Date(o.fecha).toLocaleDateString('es-EC')}</td>
-                  <td><span class="badge badge--${o.estado === 'recibida' ? 'success' : o.estado === 'aprobada' ? 'info' : 'warning'}">${o.estado}</span></td>
+                  <td><span class="badge badge--${o.estado === 'recibida' ? 'success' : o.estado === 'aprobada' ? 'info' : 'warning'}">${escapeHtml(o.estado)}</span></td>
                   <td style="font-weight:600; color:var(--accent-primary);">$${(o.total || 0).toFixed(2)}</td>
                 </tr>
               `).join('')}

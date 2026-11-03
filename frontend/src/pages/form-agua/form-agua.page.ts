@@ -3,27 +3,23 @@
    ═══════════════════════════════════════════════════════════ */
 import { crearParametrosAgua } from '../../services/operacion.service.ts';
 import { showToast } from '../../core/toast.ts';
+import { escapeHtml, formIntro, pageHeader } from '../../shared/ui.ts';
 
 function getParam(key: string): string {
   const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
-  return params.get(key) || '';
+  return escapeHtml(params.get(key) || '');
 }
 
 export function renderFormAgua(): string {
-  const codigo = getParam('codigo');
+  const codigo = new URLSearchParams(window.location.hash.split('?')[1] || '').get('codigo');
   const titleExtra = codigo ? ` — Piscina ${codigo}` : '';
 
   return `
-    <div class="page-header">
-      <div>
-        <h1 class="page-header__title">Parámetros de Agua${titleExtra}</h1>
-        <p class="page-header__subtitle">Registro de oxígeno, pH, salinidad, temperatura y amonio</p>
-      </div>
-      <button class="btn btn--ghost btn--sm" onclick="history.back()">← Volver</button>
-    </div>
+    ${pageHeader(`Calidad del agua${titleExtra}`, 'Registra las mediciones de campo y revisa las alertas antes de guardar.', 'Trabajo de campo / Agua', '<button class="btn btn--ghost btn--sm" data-back>← Volver</button>')}
 
-    <div class="card" style="max-width:680px;">
+    <div class="card form-card">
       <form id="agua-form">
+        ${formIntro('01', 'Ubicación del registro', 'Los identificadores se completan al ingresar desde una piscina.')}
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="a-granja">Granja ID</label>
@@ -46,13 +42,13 @@ export function renderFormAgua(): string {
           </div>
         </div>
 
-        <div style="background:var(--bg-glass); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; margin-bottom:20px;">
-          <div style="font-size:var(--font-sm); font-weight:600; margin-bottom:12px; color:var(--accent-primary);">Parámetros Fisicoquímicos</div>
+        <div class="form-section">
+          ${formIntro('02', 'Mediciones del agua', 'Ingresa cada valor en la unidad indicada.')}
 
           <div class="form-row">
             <div class="form-group">
               <label class="form-label" for="a-oxigeno">Oxígeno disuelto (mg/L)</label>
-              <input class="form-input" type="number" id="a-oxigeno" step="0.01" min="0.000001" max="30" required placeholder="ej: 6.5" />
+              <input class="form-input" type="number" id="a-oxigeno" step="any" min="0.000001" max="30" required placeholder="ej: 6.5" />
               <span class="form-hint">Alerta si &lt; 4 mg/L</span>
             </div>
             <div class="form-group">
@@ -80,10 +76,10 @@ export function renderFormAgua(): string {
           </div>
         </div>
 
-        <div id="a-preview" style="display:none; margin-bottom:16px;"></div>
+        <div id="a-preview" role="status" aria-live="polite" style="display:none; margin-bottom:16px;"></div>
 
-        <div style="display:flex; gap:12px; justify-content:flex-end;">
-          <button type="button" class="btn btn--secondary" onclick="history.back()">Cancelar</button>
+        <div class="form-actions">
+          <button type="button" class="btn btn--secondary" data-back>Cancelar</button>
           <button type="submit" class="btn btn--primary" id="a-submit">
             <span id="a-btn-text">Registrar Parámetros</span>
             <div id="a-spinner" class="spinner" style="display:none; width:16px; height:16px; border-width:2px;"></div>

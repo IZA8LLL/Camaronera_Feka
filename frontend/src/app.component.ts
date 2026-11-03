@@ -1,134 +1,62 @@
-/* ═══════════════════════════════════════════════════════════
-   By Fekas Corp. — Shell Principal de la Aplicación
-   Sidebar oceánico, barra superior y enrutador dinámico
-   ═══════════════════════════════════════════════════════════ */
-import { resolveRoute, getCurrentRoute } from './app.routes.ts';
+import { resolveRoute } from './app.routes.ts';
 import { getUser, logout } from './services/auth.service.ts';
+import { escapeHtml, icon } from './shared/ui.ts';
+import { initNavigation, renderNavigation } from './shared/navigation.ts';
+
+let disposeNavigation: (() => void) | undefined;
 
 export function renderAppShell(): void {
   const appContainer = document.getElementById('app');
   if (!appContainer) return;
-
-  const currentRoute = resolveRoute();
-  const { path } = getCurrentRoute();
-  const user = getUser();
-
-  // Si es la página de login, renderizar en pantalla completa sin sidebar
-  if (currentRoute.path === '/login') {
-    appContainer.innerHTML = `
-      <div id="router-outlet">
-        ${currentRoute.render()}
-      </div>
-    `;
-    currentRoute.init?.();
+  disposeNavigation?.();
+  disposeNavigation = undefined;
+  const route = resolveRoute();
+  document.title = `${route.title} · By Fekas Corp.`;
+  if (route.path === '/login') {
+    appContainer.innerHTML = `<main id="router-outlet">${route.render()}</main>`;
+    route.init?.();
     return;
   }
-
-  // Shell para usuarios autenticados
-  const userInitial = user?.nombre ? user.nombre.charAt(0).toUpperCase() : 'U';
-  const tenantShort = user?.tenant_id ? `${user.tenant_id.slice(0, 6)}...` : 'FekasCorp';
-
+  const user = getUser();
+  const name = user?.nombre || 'Usuario';
+  const initial = name.charAt(0).toUpperCase();
   appContainer.innerHTML = `
+    <a class="skip-link" href="#router-outlet" id="skip-content">Ir al contenido</a>
     <div class="layout">
-      <!-- Sidebar -->
-      <aside class="layout__sidebar" id="app-sidebar">
-        <div class="sidebar-brand">
-          <div class="sidebar-brand__icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#FFA726;">
-              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
-              <path d="M12 6a6 6 0 0 0-6 6c0 2.5 1.5 4.5 4 5.5"/>
-              <circle cx="15" cy="9" r="1"/>
-            </svg>
-          </div>
-          <div class="sidebar-brand__text">
-            <h2>BY FEKAS CORP</h2>
-            <span>ERP Camaronera</span>
-          </div>
-        </div>
-
-        <nav class="sidebar-nav">
-          <div class="sidebar-section">
-            <div class="sidebar-section__title">OPERACIONES</div>
-            <a href="#/dashboard" class="nav-item ${path === '/dashboard' ? 'active' : ''}">
-              <span>Dashboard</span>
-            </a>
-            <a href="#/piscinas" class="nav-item ${path === '/piscinas' ? 'active' : ''}">
-              <span>Piscinas / Estanques</span>
-            </a>
-          </div>
-
-          <div class="sidebar-section">
-            <div class="sidebar-section__title">REGISTROS DE CAMPO</div>
-            <a href="#/form-muestreo" class="nav-item ${path === '/form-muestreo' ? 'active' : ''}">
-              <span>Muestreo Biométrico</span>
-            </a>
-            <a href="#/form-agua" class="nav-item ${path === '/form-agua' ? 'active' : ''}">
-              <span>Parámetros de Agua</span>
-            </a>
-            <a href="#/form-alimentacion" class="nav-item ${path === '/form-alimentacion' ? 'active' : ''}">
-              <span>Alimentación (Kardex)</span>
-            </a>
-          </div>
-
-          <div class="sidebar-section">
-            <div class="sidebar-section__title">CADENA DE SUMINISTRO</div>
-            <a href="#/compras" class="nav-item ${path === '/compras' ? 'active' : ''}">
-              <span>Compras & Proveedores</span>
-            </a>
-          </div>
-        </nav>
-
-        <div class="sidebar-footer">
-          <div class="sidebar-footer__db">
-            <span class="db-indicator">●</span>
-            <span class="db-name">by_fekas_corp_db</span>
-          </div>
-          <div class="sidebar-footer__tenant">Tenant: <span class="tenant-code">${tenantShort}</span></div>
-        </div>
+      <aside class="layout__sidebar" id="app-sidebar" aria-label="Navegación principal">
+        <a class="sidebar-brand" href="#/dashboard" aria-label="By Fekas Corp., inicio">
+          <span class="brand-mark">${icon('pools')}</span>
+          <span class="sidebar-brand__text"><strong>by fekas<span class="brand-dot">.</span></strong><small>GESTIÓN ACUÍCOLA</small></span>
+        </a>
+        <button class="btn btn--ghost mobile-menu-close" id="btn-close-menu" aria-label="Cerrar menú">${icon('close')}</button>
+        <div class="workspace-label"><span class="workspace-monogram">BF</span><div><strong>By Fekas Corp.</strong><small>Espacio de trabajo</small></div></div>
+        <nav class="sidebar-nav" aria-label="Módulos del ERP">${renderNavigation(route.path)}</nav>
+        <div class="sidebar-footer">${icon('water')}<div><strong>Del campo a la gestión.</strong><span>Una operación, una visión.</span></div></div>
       </aside>
-
-      <!-- Contenedor Principal -->
+      <button id="menu-backdrop" class="menu-backdrop" hidden tabindex="-1" aria-label="Cerrar menú"></button>
       <div class="layout__content">
         <header class="layout__topbar">
-          <div style="display:flex; align-items:center; gap:16px;">
-            <button id="btn-toggle-menu" class="btn btn--ghost btn--sm" style="display:none;" aria-label="Abrir menú">
-              Menú
-            </button>
-            <h1 class="topbar__title">${currentRoute.title}</h1>
+          <div class="topbar__context">
+            <button id="btn-toggle-menu" class="btn btn--ghost mobile-menu-toggle" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false">${icon('menu')}</button>
+            <span class="topbar__workspace">Espacio de trabajo</span><span class="topbar__divider" aria-hidden="true">/</span><span class="topbar__title">${escapeHtml(route.title)}</span>
           </div>
-
-          <div class="topbar__actions">
-            <div class="topbar__user">
-              <div class="topbar__avatar">${userInitial}</div>
-              <div style="display:flex; flex-direction:column;">
-                <span class="topbar__name">${user?.nombre || 'Administrador Inicial'}</span>
-                <span class="topbar__email">${user?.email || 'admin@fekascorp.com'}</span>
-              </div>
-            </div>
-
-            <button class="btn btn-logout-corporate btn--sm" id="btn-logout" title="Cerrar Sesión">
-              Salir
-            </button>
+          <div class="topbar__actions"><div class="topbar__user"><div class="topbar__avatar" aria-hidden="true">${escapeHtml(initial)}</div><div class="topbar__identity"><span class="topbar__name">${escapeHtml(name)}</span><span class="topbar__email">${escapeHtml(user?.email || '')}</span></div></div>
+            <button class="btn btn--ghost btn--sm" id="btn-logout" title="Cerrar sesión" aria-label="Cerrar sesión">${icon('logout')}<span class="logout-label">Salir</span></button>
           </div>
         </header>
-
-        <main class="layout__main" id="router-outlet">
-          ${currentRoute.render()}
-        </main>
+        <main class="layout__main" id="router-outlet" tabindex="-1">${route.render()}</main>
+        <footer class="layout__footer"><span>By Fekas Corp.</span><span>Gestión acuícola integral</span></footer>
       </div>
-    </div>
-  `;
-
-  // Inicializar controlador de la página
-  currentRoute.init?.();
-
-  // Enlazar botón de logout
-  const logoutBtn = document.getElementById('btn-logout');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async () => {
-      if (confirm('¿Está seguro de cerrar sesión en By Fekas Corp.?')) {
-        await logout();
-      }
-    });
-  }
+    </div>`;
+  disposeNavigation = initNavigation();
+  document.getElementById('skip-content')?.addEventListener('click', event => {
+    event.preventDefault(); document.getElementById('router-outlet')?.focus();
+  });
+  route.init?.();
+  appContainer.querySelectorAll('[data-back]').forEach(button => {
+    button.addEventListener('click', () => history.back());
+  });
+  document.getElementById('btn-logout')?.addEventListener('click', async () => {
+    if (confirm('¿Está seguro de cerrar sesión en By Fekas Corp.?')) await logout();
+  });
 }

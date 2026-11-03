@@ -5,95 +5,38 @@
 import { fetchPiscinas } from '../../services/piscina.service.ts';
 import type { PiscinaRow } from '../../core/models/index.ts';
 import { getUser } from '../../services/auth.service.ts';
+import { escapeHtml, icon, pageHeader, type IconName } from '../../shared/ui.ts';
 
 export function renderDashboard(): string {
   const user = getUser();
+  const stats: { id: string; label: string; hint: string; icon: IconName }[] = [
+    { id: 'stat-total-pools', label: 'Piscinas totales', hint: 'Estanques en tu operación', icon: 'pools' },
+    { id: 'stat-active-pools', label: 'Piscinas activas', hint: 'Estado operativo actual', icon: 'water' },
+    { id: 'stat-alerts', label: 'Alertas de agua', hint: 'Piscinas que requieren revisión', icon: 'alert' },
+    { id: 'stat-biomass', label: 'Biomasa total · kg', hint: 'Estimación de ciclos actuales', icon: 'scale' }
+  ];
+  const actions: { path: string; label: string; hint: string; icon: IconName }[] = [
+    { path: '/form-muestreo', label: 'Muestreo', hint: 'Peso y crecimiento', icon: 'sample' },
+    { path: '/form-agua', label: 'Calidad del agua', hint: 'Parámetros y alertas', icon: 'water' },
+    { path: '/form-alimentacion', label: 'Alimentación', hint: 'Consumo e inventario', icon: 'feed' },
+    { path: '/piscinas', label: 'Piscinas', hint: 'Revisar estanques', icon: 'pools' }
+  ];
   return `
-    <div class="page-header">
-      <div>
-        <h1 class="page-header__title">Dashboard</h1>
-        <p class="page-header__subtitle">Bienvenido, ${user?.nombre || 'Administrador Inicial'}</p>
-      </div>
-      <div>
-        <button class="btn corporate-header-btn" onclick="location.hash='#/piscinas'">
-          Ver Piscinas
-        </button>
-      </div>
+    ${pageHeader('Tu operación, en perspectiva.', `Bienvenido, ${user?.nombre || 'a By Fekas'}. Este es el resumen de tus piscinas.`, 'Panel de operaciones', `<a class="btn btn--primary" href="#/piscinas">Ver piscinas ${icon('arrow')}</a>`)}
+    <div id="dashboard-stats" class="stats-grid" aria-label="Indicadores operativos">
+      ${stats.map((stat, i) => `<div class="stat-card ${i === 0 ? 'stat-card--featured' : ''}"><div class="stat-card__top"><span class="stat-card__label">${stat.label}</span>${icon(stat.icon)}</div><div class="stat-card__value" id="${stat.id}">—</div><p class="stat-card__foot">${stat.hint}</p></div>`).join('')}
     </div>
-
-    <!-- 4 KPI Stats Cards Corporativas -->
-    <div id="dashboard-stats" class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-card__value" id="stat-total-pools">—</div>
-        <div class="stat-card__label">Piscinas Totales</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-card__value" id="stat-active-pools">—</div>
-        <div class="stat-card__label">Piscinas Activas</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-card__value" id="stat-alerts">—</div>
-        <div class="stat-card__label">Alertas de Agua</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-card__value" id="stat-biomass">—</div>
-        <div class="stat-card__label">Biomasa Total (kg)</div>
-      </div>
-    </div>
-
-    <!-- 2 Column Section: Alertas Recientes & Acciones Rápidas -->
     <div class="dashboard-columns">
-      <!-- Alertas Recientes -->
-      <div class="card corporate-card">
-        <div class="card__header">
-          <h2 class="card__title">Alertas Recientes</h2>
-        </div>
-        <div id="dashboard-alerts">
-          <div class="loading-overlay">
-            <div class="spinner"></div>
-            <span>Cargando alertas…</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Acciones Rápidas -->
-      <div class="card corporate-card">
-        <div class="card__header">
-          <h2 class="card__title">Acciones Rápidas</h2>
-        </div>
-        <div class="quick-actions-corporate">
-          <button class="btn-corporate-action" onclick="location.hash='#/form-muestreo'">
-            Registrar Muestreo
-          </button>
-          <button class="btn-corporate-action" onclick="location.hash='#/form-agua'">
-            Registrar Parámetros de Agua
-          </button>
-          <button class="btn-corporate-action" onclick="location.hash='#/form-alimentacion'">
-            Registrar Alimentación
-          </button>
-          <button class="btn-corporate-action" onclick="location.hash='#/piscinas'">
-            Ver Todas las Piscinas
-          </button>
-        </div>
-      </div>
+      <section class="card"><div class="card__header"><div><h2 class="card__title">Atención en campo</h2><p class="card__caption">Alertas de los últimos registros de agua</p></div>${icon('alert')}</div>
+        <div id="dashboard-alerts"><div class="loading-overlay" role="status"><div class="spinner"></div><span>Cargando alertas…</span></div></div>
+      </section>
+      <section class="card"><div class="card__header"><div><h2 class="card__title">Registrar una operación</h2><p class="card__caption">Accesos al trabajo de cada día</p></div></div>
+        <div class="quick-actions">${actions.map(action => `<a class="quick-action" href="#${action.path}"><span class="quick-action__icon">${icon(action.icon)}</span><strong>${action.label}</strong><small>${action.hint}</small></a>`).join('')}</div>
+      </section>
     </div>
-
-    <!-- Resumen Operativo de Piscinas -->
-    <div class="card corporate-card" style="margin-top:20px;">
-      <div class="card__header">
-        <h2 class="card__title">Resumen Operativo de Piscinas</h2>
-      </div>
-      <div id="dashboard-pool-summary">
-        <div class="loading-overlay">
-          <div class="spinner"></div>
-          <span>Cargando piscinas…</span>
-        </div>
-      </div>
-    </div>
-  `;
+    <section class="card section-gap"><div class="card__header"><div><h2 class="card__title">Estado de las piscinas</h2><p class="card__caption">Últimas mediciones disponibles por estanque</p></div><a href="#/piscinas" class="summary-link">Ver todas ${icon('arrow')}</a></div>
+      <div id="dashboard-pool-summary"><div class="loading-overlay" role="status"><div class="spinner"></div><span>Cargando piscinas…</span></div></div>
+    </section>`;
 }
 
 export async function initDashboard() {
@@ -138,24 +81,26 @@ function renderAlerts(pools: PiscinaRow[]) {
 
   if (alertPools.length === 0) {
     container.innerHTML = `
-      <div style="text-align:center; padding:32px 16px; color:var(--text-muted);">
-        <p style="font-weight:600; color:var(--text-primary); font-size:1rem; margin-bottom:4px;">Sin alertas activas</p>
-        <span style="font-size:0.85rem;">Todos los estanques se encuentran dentro de los parámetros normales.</span>
+      <div class="empty-state">
+        ${icon('check')}
+        <p class="empty-state__title">Sin alertas registradas</p>
+        <span class="empty-state__text">No hay alertas en los datos disponibles de tus piscinas.</span>
       </div>
     `;
     return;
   }
 
   container.innerHTML = alertPools.map(p => `
-    <div class="alert-tile" onclick="location.hash='#/piscinas'" title="Ver detalles de piscina">
+    <a class="alert-tile" href="#/piscinas" title="Ver detalles de piscina">
+      ${icon('alert')}
       <div class="alert-tile__content">
-        <div class="alert-tile__title">Piscina ${p.codigo}</div>
+        <div class="alert-tile__title">Piscina ${escapeHtml(p.codigo)}</div>
         <div class="alert-tile__subtitle">
-          O₂: ${p.oxigeno_mg_l || '—'} mg/L · pH: ${p.ph || '—'} · NH₃: ${p.amonio_mg_l || '—'} mg/L
+          O₂: ${escapeHtml(p.oxigeno_mg_l || '—')} mg/L · pH: ${escapeHtml(p.ph || '—')} · Amonio: ${escapeHtml(p.amonio_mg_l || '—')} mg/L
         </div>
       </div>
-      <div class="alert-tile__indicator" title="Alerta activa"></div>
-    </div>
+      ${icon('arrow')}
+    </a>
   `).join('');
 }
 
@@ -182,7 +127,7 @@ function renderPoolSummary(pools: PiscinaRow[]) {
 
   container.innerHTML = `
     <div class="table-wrapper">
-      <table class="table">
+      <table class="table" aria-label="Estado operativo de piscinas">
         <thead>
           <tr>
             <th>Código</th>
@@ -197,14 +142,14 @@ function renderPoolSummary(pools: PiscinaRow[]) {
         </thead>
         <tbody>
           ${pools.map(p => `
-            <tr style="cursor:pointer;" onclick="location.hash='#/piscinas'">
-              <td style="font-weight:600;">${p.codigo}</td>
-              <td><span class="badge badge--${statusColor(p.estado)}">${p.estado}</span></td>
-              <td>${p.area_ha || '—'}</td>
-              <td class="${p.oxigeno_mg_l && parseFloat(p.oxigeno_mg_l) < 4 ? 'pool-metric__value--danger' : ''}">${p.oxigeno_mg_l || '—'}</td>
-              <td class="${p.ph && (parseFloat(p.ph) < 7 || parseFloat(p.ph) > 9) ? 'pool-metric__value--warning' : ''}">${p.ph || '—'}</td>
+            <tr>
+              <td><a class="table-link text-strong" href="#/piscinas">${escapeHtml(p.codigo)}</a></td>
+              <td><span class="badge badge--${statusColor(p.estado)}">${escapeHtml(p.estado)}</span></td>
+              <td>${escapeHtml(p.area_ha || '—')}</td>
+              <td class="${p.oxigeno_mg_l && parseFloat(p.oxigeno_mg_l) < 4 ? 'pool-metric__value--danger' : ''}">${escapeHtml(p.oxigeno_mg_l || '—')}</td>
+              <td class="${p.ph && (parseFloat(p.ph) < 7 || parseFloat(p.ph) > 9) ? 'pool-metric__value--warning' : ''}">${escapeHtml(p.ph || '—')}</td>
               <td>${p.biomasa_kg ? parseFloat(p.biomasa_kg).toLocaleString('es-EC') : '—'}</td>
-              <td>${p.fca || '—'}</td>
+              <td>${escapeHtml(p.fca || '—')}</td>
               <td>${p.alerta ? '<span class="badge badge--danger">Alerta</span>' : '<span class="badge badge--success">OK</span>'}</td>
             </tr>
           `).join('')}
