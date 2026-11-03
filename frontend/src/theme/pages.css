@@ -6,8 +6,8 @@
 .stat-card__label { color: var(--text-secondary); font-size: .7rem; }
 .stat-card__value { font-size: clamp(1.7rem, 2.8vw, 2.4rem); font-weight: 500; line-height: 1.15; letter-spacing: -.06em; font-variant-numeric: tabular-nums; }
 .stat-card__foot { font-size: .62rem; color: var(--text-muted); margin-top: 12px; }
-.stat-card--featured { background: #d2d6da; color: #1e2429; border-color: #d2d6da; }
-.stat-card--featured .stat-card__label, .stat-card--featured .stat-card__foot, .stat-card--featured .icon { color: #4c555c; }
+.stat-card--featured { background: var(--featured-bg); color: var(--featured-text); border-color: var(--featured-bg); }
+.stat-card--featured .stat-card__label, .stat-card--featured .stat-card__foot, .stat-card--featured .icon { color: var(--featured-muted); }
 .dashboard-columns { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; }
 .quick-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .quick-action { display: flex; flex-direction: column; align-items: flex-start; padding: 16px; border: 1px solid var(--border-color); border-radius: var(--radius-md); transition: background var(--transition-fast); }
@@ -25,7 +25,7 @@
 .summary-link .icon { width: 14px; }
 /* Piscinas */
 .pool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr)); gap: 20px; }
-.pool-card--alert { border-top: 2px solid #bd9191; }
+.pool-card--alert { border-top: 2px solid var(--danger); }
 .pool-card__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
 .pool-card__code { font-size: 1.2rem; font-weight: 500; letter-spacing: -.03em; }
 .pool-card__metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--border-dark); }
@@ -41,21 +41,22 @@
 @media (min-width: 1600px) { .purchases-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 /* Acceso: dibujo vectorial de estanques, sin recursos externos. */
 .login-page { display: grid; grid-template-columns: 1.15fr 1fr; min-height: 100dvh; }
-.login-story { background: #1c2226; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 48px 60px; position: relative; overflow: hidden; }
+.login-story { background: var(--story-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 48px 60px; position: relative; overflow: hidden; }
 .login-story .sidebar-brand { padding: 0; }
 .login-story__content { margin-block: auto; padding-block: 60px 30px; position: relative; z-index: 1; }
 .login-story h2 { font-size: clamp(2.5rem, 4.5vw, 4.5rem); font-weight: 400; line-height: 1.07; letter-spacing: -.06em; max-width: 530px; }
-.login-story h2 span { color: #a0acb5; }
+.login-story h2 span { color: var(--text-muted); }
 .login-story__description { margin-top: 24px; max-width: 370px; color: var(--text-secondary); font-size: .85rem; line-height: 1.8; }
 .pond-art { width: 100%; max-width: 480px; margin-top: 36px; color: #78828a; }
 .login-story__footer { font-size: .65rem; color: var(--text-muted); letter-spacing: .08em; text-transform: uppercase; }
-.login-panel { display: flex; align-items: center; justify-content: center; padding: 48px; }
+.login-panel { position: relative; display: flex; align-items: center; justify-content: center; padding: 48px; }
 .login-card { width: 100%; max-width: 360px; }
+.login-theme-controls { position: absolute; top: 24px; right: 24px; }
 .login-card__brand { margin-bottom: 32px; }
 .login-card__logo { margin-bottom: 30px; }
 .login-card__title { font-size: 1.9rem; font-weight: 500; letter-spacing: -.045em; }
 .login-card__desc { font-size: .8rem; color: var(--text-muted); margin-top: 10px; }
 .login-card__footer { margin-top: 30px; font-size: .65rem; color: var(--text-muted); line-height: 1.8; }
 @media (max-width: 1180px) { .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dashboard-columns { grid-template-columns: minmax(0, 1fr); } .login-story { padding: 40px; } }
-@media (max-width: 700px) { .login-page { grid-template-columns: 1fr; } .login-story { display: none; } .login-panel { min-height: 100dvh; padding: 32px 24px; } }
+@media (max-width: 700px) { .login-page { grid-template-columns: 1fr; } .login-story { display: none; } .login-panel { min-height: 100dvh; padding: 96px 24px 32px; } }
 @media (max-width: 600px) { .stat-card { padding: 16px; } .stat-card__top { gap: 6px; margin-bottom: 16px; } .stat-card__label { font-size: .64rem; } .stat-card__top .icon { width: 14px; } .stats-grid { gap: 10px; } .stat-card__foot { font-size: .59rem; } .dashboard-columns { gap: 18px; } .quick-action { padding: 13px; } }

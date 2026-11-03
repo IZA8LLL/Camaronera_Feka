@@ -38,6 +38,78 @@ async function noOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 }
 
+test('tema claro predeterminado y cambio accesible sin perder el formulario', async ({ page }) => {
+  await mockApi(page, false);
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/#/login');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'light');
+  const toggle = page.getByRole('button', { name: 'Modo oscuro', exact: true });
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await page.getByLabel('Correo electrónico').fill('maria@example.test');
+  await page.getByLabel('Contraseña').fill('test-password');
+  await toggle.focus();
+  await page.keyboard.press('Enter');
+  await expect(toggle).toBeFocused();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
+  await expect(page.getByLabel('Correo electrónico')).toHaveValue('maria@example.test');
+  await expect(page.getByLabel('Contraseña')).toHaveValue('test-password');
+  await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
+  await expect(page).toHaveURL(/#\/dashboard$/);
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await page.reload();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await toggle.focus();
+  await page.keyboard.press('Space');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  expect(await page.evaluate(() => localStorage.getItem('by-fekas-theme'))).toBe('light');
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+});
+
+test('ambos temas se aplican en las pantallas sin alterar los datos', async ({ page }, info) => {
+  await mockApi(page);
+  await page.goto('/#/dashboard');
+  for (const theme of ['light', 'dark']) {
+    if (theme === 'dark') await page.getByRole('button', { name: 'Modo oscuro', exact: true }).click();
+    for (const path of ['dashboard', 'piscinas', 'form-agua', 'form-muestreo', 'form-alimentacion', 'compras']) {
+      await page.goto(`/#/${path}`);
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      await noOverflow(page);
+      if (path === 'dashboard') {
+        await expect(page.locator('#stat-total-pools')).toHaveText('3');
+        await expect(page.locator('.stat-card').nth(1)).toHaveCSS('background-color', theme === 'light' ? 'rgb(255, 255, 255)' : 'rgb(28, 34, 38)');
+        await page.screenshot({ path: info.outputPath(`dashboard-${theme}.png`), fullPage: true });
+      }
+    }
+  }
+  await page.setViewportSize({ width: 320, height: 740 });
+  await noOverflow(page);
+  await expect(page.getByRole('button', { name: 'Modo oscuro', exact: true })).toBeVisible();
+});
+
+test('el cambio de tema funciona si se bloquea el almacenamiento', async ({ page }) => {
+  await mockApi(page, false);
+  await page.addInitScript(() => {
+    const originalGet = Storage.prototype.getItem;
+    Storage.prototype.getItem = function(key) {
+      if (key === 'by-fekas-theme') throw new DOMException('Bloqueado', 'SecurityError');
+      return originalGet.call(this, key);
+    };
+    const originalSet = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(key, value) {
+      if (key === 'by-fekas-theme') throw new DOMException('Bloqueado', 'SecurityError');
+      originalSet.call(this, key, value);
+    };
+  });
+  await page.goto('/#/login');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await page.getByRole('button', { name: 'Modo oscuro', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+});
+
 test('acceso, error recuperable y cierre de sesión', async ({ page }, info) => {
   await mockApi(page, false);
   await page.goto('/#/login');

@@ -65,6 +65,10 @@ Las capturas se generan en `test-results/`; ante fallas se conserva también una
 
 ## Criterios para mantener el diseño
 
+El tema claro es el predeterminado, incluso si el sistema operativo usa modo oscuro. El botón **Modo oscuro**, disponible en acceso y barra superior, alterna ambos temas con teclado o ratón y anuncia su estado mediante `aria-pressed`. La preferencia se guarda localmente con la clave `by-fekas-theme`; si el navegador bloquea el almacenamiento, el cambio sigue funcionando durante la página actual. Cambiar de tema no vuelve a renderizar formularios ni elimina datos introducidos.
+
+`public/theme-init.js` restaura la preferencia antes del primer render y `src/shared/theme.ts` controla el botón. Los colores de ambos modos están en `tokens.css`; utilizar las variables semánticas para que cualquier nuevo componente soporte ambos temas.
+
 1. Definir los colores compartidos en `tokens.css`; reservar verde, ámbar y rojo para estados, siempre acompañados de texto.
 2. Reutilizar `pageHeader`, `formIntro`, `icon` y las clases existentes antes de crear variantes.
 3. Usar enlaces para navegar y botones para acciones. Evitar manejadores JavaScript dentro de atributos HTML.

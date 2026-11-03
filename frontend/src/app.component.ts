@@ -2,6 +2,7 @@ import { resolveRoute } from './app.routes.ts';
 import { getUser, logout } from './services/auth.service.ts';
 import { escapeHtml, icon } from './shared/ui.ts';
 import { initNavigation, renderNavigation } from './shared/navigation.ts';
+import { initThemeToggle, renderThemeToggle } from './shared/theme.ts';
 
 let disposeNavigation: (() => void) | undefined;
 
@@ -14,6 +15,7 @@ export function renderAppShell(): void {
   document.title = `${route.title} · By Fekas Corp.`;
   if (route.path === '/login') {
     appContainer.innerHTML = `<main id="router-outlet">${route.render()}</main>`;
+    initThemeToggle(appContainer);
     route.init?.();
     return;
   }
@@ -40,7 +42,7 @@ export function renderAppShell(): void {
             <button id="btn-toggle-menu" class="btn btn--ghost mobile-menu-toggle" aria-label="Abrir menú" aria-controls="app-sidebar" aria-expanded="false">${icon('menu')}</button>
             <span class="topbar__workspace">Espacio de trabajo</span><span class="topbar__divider" aria-hidden="true">/</span><span class="topbar__title">${escapeHtml(route.title)}</span>
           </div>
-          <div class="topbar__actions"><div class="topbar__user"><div class="topbar__avatar" aria-hidden="true">${escapeHtml(initial)}</div><div class="topbar__identity"><span class="topbar__name">${escapeHtml(name)}</span><span class="topbar__email">${escapeHtml(user?.email || '')}</span></div></div>
+          <div class="topbar__actions">${renderThemeToggle()}<div class="topbar__user"><div class="topbar__avatar" aria-hidden="true">${escapeHtml(initial)}</div><div class="topbar__identity"><span class="topbar__name">${escapeHtml(name)}</span><span class="topbar__email">${escapeHtml(user?.email || '')}</span></div></div>
             <button class="btn btn--ghost btn--sm" id="btn-logout" title="Cerrar sesión" aria-label="Cerrar sesión">${icon('logout')}<span class="logout-label">Salir</span></button>
           </div>
         </header>
@@ -49,6 +51,7 @@ export function renderAppShell(): void {
       </div>
     </div>`;
   disposeNavigation = initNavigation();
+  initThemeToggle(appContainer);
   document.getElementById('skip-content')?.addEventListener('click', event => {
     event.preventDefault(); document.getElementById('router-outlet')?.focus();
   });

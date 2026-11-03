@@ -5,6 +5,7 @@
 import { login } from '../../services/auth.service.ts';
 import { showToast } from '../../core/toast.ts';
 import { icon } from '../../shared/ui.ts';
+import { renderThemeToggle } from '../../shared/theme.ts';
 
 export function renderLogin(): string {
   return `
@@ -24,6 +25,7 @@ export function renderLogin(): string {
         <p class="login-story__footer">By Fekas Corp. · Del campo a la gestión</p>
       </aside>
       <div class="login-panel">
+      <div class="login-theme-controls">${renderThemeToggle()}</div>
       <div class="login-card">
         <div class="login-card__brand">
           <div class="login-card__logo brand-mark">${icon('pools')}</div>

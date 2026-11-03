@@ -1,5 +1,50 @@
 /* Paleta pizarra. Color reservado para estados operativos. */
-:root {
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg-primary: #f7f8fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e9edf0;
+  --bg-topbar: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f0f3f5;
+  --bg-subsurface: #f6f8fa;
+  --bg-input: #ffffff;
+  --bg-glass: #15191c03;
+  --bg-glass-strong: #15191c06;
+  --text-primary: #1e2429;
+  --text-primary-on-dark: #edf0f2;
+  --text-secondary: #4c5963;
+  --text-muted: #5e6b75;
+  --accent-primary: #303a42;
+  --accent-primary-dim: #303a421f;
+  --accent-hover: #15191c;
+  --on-accent: #ffffff;
+  --border-color: #d8dfe4;
+  --border-dark: #e3e8ec;
+  --border-glow: #78828a;
+  --border-input: #87949e;
+  --placeholder: #64717b;
+  --nav-active-bg: #e9edf0;
+  --nav-active-border: #d0d8de;
+  --nav-active-text: #1e2429;
+  --featured-bg: #303a42;
+  --featured-text: #ffffff;
+  --featured-muted: #dde3e8;
+  --toast-bg: #ffffff;
+  --story-bg: #eef1f4;
+  --success: #286247;
+  --success-dim: #2862470e;
+  --warning: #805b1f;
+  --warning-dim: #805b1f0e;
+  --danger: #a33434;
+  --danger-dim: #a334340e;
+  --info: #395d77;
+  --info-dim: #395d770e;
+  --shadow-lg: 0 18px 60px #1e242918;
+}
+
+:root[data-theme='dark'] {
   color-scheme: dark;
   --bg-primary: #15191c;
   --bg-secondary: #101416;
@@ -17,9 +62,21 @@
   --text-muted: #98a4ad;
   --accent-primary: #d2d6da;
   --accent-primary-dim: #d2d6da1f;
+  --accent-hover: #edf0f2;
+  --on-accent: #15191c;
   --border-color: #343e45;
   --border-dark: #2a3339;
   --border-glow: #78828a;
+  --border-input: #697781;
+  --placeholder: #8f9ba4;
+  --nav-active-bg: #2c343a;
+  --nav-active-border: #3b464e;
+  --nav-active-text: #ffffff;
+  --featured-bg: #d2d6da;
+  --featured-text: #1e2429;
+  --featured-muted: #4c555c;
+  --toast-bg: #252c31;
+  --story-bg: #1c2226;
   --success: #a5c8b2;
   --success-dim: #a5c8b211;
   --warning: #dcc596;
@@ -29,6 +86,10 @@
   --info: #b8c9d6;
   --info-dim: #b8c9d612;
   --shadow-lg: 0 18px 60px #0005;
+}
+
+/* Las medidas y la tipografía son iguales en ambos temas. */
+:root {
   --radius-sm: 7px;
   --radius-md: 10px;
   --radius-lg: 14px;
