@@ -39,24 +39,61 @@
 .purchases-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
 .provider-panel { margin-bottom: 24px; }
 @media (min-width: 1600px) { .purchases-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-/* Acceso: dibujo vectorial de estanques, sin recursos externos. */
-.login-page { display: grid; grid-template-columns: 1.15fr 1fr; min-height: 100dvh; }
-.login-story { background: var(--story-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 48px 60px; position: relative; overflow: hidden; }
-.login-story .sidebar-brand { padding: 0; }
-.login-story__content { margin-block: auto; padding-block: 60px 30px; position: relative; z-index: 1; }
-.login-story h2 { font-size: clamp(2.5rem, 4.5vw, 4.5rem); font-weight: 400; line-height: 1.07; letter-spacing: -.06em; max-width: 530px; }
-.login-story h2 span { color: var(--text-muted); }
-.login-story__description { margin-top: 24px; max-width: 370px; color: var(--text-secondary); font-size: .85rem; line-height: 1.8; }
-.pond-art { width: 100%; max-width: 480px; margin-top: 36px; color: #78828a; }
-.login-story__footer { font-size: .65rem; color: var(--text-muted); letter-spacing: .08em; text-transform: uppercase; }
-.login-panel { position: relative; display: flex; align-items: center; justify-content: center; padding: 48px; }
-.login-card { width: 100%; max-width: 360px; }
-.login-theme-controls { position: absolute; top: 24px; right: 24px; }
-.login-card__brand { margin-bottom: 32px; }
-.login-card__logo { margin-bottom: 30px; }
-.login-card__title { font-size: 1.9rem; font-weight: 500; letter-spacing: -.045em; }
-.login-card__desc { font-size: .8rem; color: var(--text-muted); margin-top: 10px; }
-.login-card__footer { margin-top: 30px; font-size: .65rem; color: var(--text-muted); line-height: 1.8; }
-@media (max-width: 1180px) { .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dashboard-columns { grid-template-columns: minmax(0, 1fr); } .login-story { padding: 40px; } }
-@media (max-width: 700px) { .login-page { grid-template-columns: 1fr; } .login-story { display: none; } .login-panel { min-height: 100dvh; padding: 96px 24px 32px; } }
+/* Acceso: Hero fotográfico con efecto cinematográfico y telemetría de estanques */
+.login-page { display: grid; grid-template-columns: 1.15fr 1fr; min-height: 100dvh; position: relative; overflow-x: hidden; background: var(--bg-primary); }
+.login-story { position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 48px 60px; min-height: 100%; border-right: 1px solid var(--border-color); color: #f8fafc; }
+.login-story__bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.login-story__image { position: absolute; inset: -5%; width: 110%; height: 110%; background-image: url('/camaronera-hero.jpg'); background-size: cover; background-position: center; filter: saturate(1.1) brightness(0.95); transform-origin: center center; animation: kenBurnsLogin 28s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate; }
+.login-story__scrim { position: absolute; inset: 0; background: linear-gradient(145deg, rgba(7, 21, 35, 0.88) 0%, rgba(9, 29, 47, 0.80) 45%, rgba(13, 44, 66, 0.86) 100%); }
+:root[data-theme='dark'] .login-story__scrim { background: linear-gradient(145deg, rgba(3, 11, 20, 0.92) 0%, rgba(5, 18, 30, 0.86) 50%, rgba(8, 28, 44, 0.90) 100%); }
+.login-story__glow { position: absolute; bottom: -10%; left: -10%; width: 70%; height: 70%; background: radial-gradient(circle, rgba(56, 189, 248, 0.18) 0%, rgba(16, 185, 129, 0.08) 40%, transparent 70%); filter: blur(40px); animation: waterGlowPulse 8s ease-in-out infinite alternate; pointer-events: none; }
+@keyframes kenBurnsLogin { 0% { transform: scale(1) translate(0%, 0%); } 50% { transform: scale(1.07) translate(-1.5%, -1%); } 100% { transform: scale(1.03) translate(1%, -0.5%); } }
+@keyframes waterGlowPulse { 0% { opacity: 0.6; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1.1); } }
+.login-story .sidebar-brand { position: relative; z-index: 2; padding: 0; color: #ffffff; text-decoration: none; }
+.login-story .brand-mark { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; }
+.login-story .sidebar-brand__text strong { color: #ffffff; }
+.login-story .sidebar-brand__text small { color: rgba(255, 255, 255, 0.7); }
+.login-story .brand-dot { color: #38bdf8; }
+.login-story__content { position: relative; z-index: 2; margin-block: auto; padding-block: 40px 20px; max-width: 580px; }
+.story-status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(56, 189, 248, 0.35); font-size: 0.72rem; font-weight: 500; color: #f1f5f9; margin-bottom: 22px; box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+.status-pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 10px #22c55e; animation: pulseDot 2s infinite ease-in-out; }
+@keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px #22c55e; } 50% { opacity: 0.45; transform: scale(0.85); box-shadow: 0 0 2px #22c55e; } }
+.story-eyebrow { color: #94a3b8; letter-spacing: 0.14em; text-transform: uppercase; font-size: 0.72rem; font-weight: 600; margin-bottom: 12px; }
+.login-story h2, .story-headline { font-size: clamp(2.4rem, 4.2vw, 4.2rem); font-weight: 400; line-height: 1.08; letter-spacing: -0.055em; color: #ffffff; text-shadow: 0 2px 20px rgba(0,0,0,0.3); max-width: 530px; }
+.login-story h2 span, .story-headline__accent { background: linear-gradient(135deg, #38bdf8 0%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 500; display: inline-block; }
+.login-story__description { margin-top: 20px; max-width: 440px; color: #cbd5e1; font-size: 0.88rem; line-height: 1.7; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+.story-telemetry-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 28px; max-width: 520px; }
+.telemetry-card { background: rgba(15, 23, 42, 0.58); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 14px; padding: 12px 14px; transition: transform 0.25s ease, border-color 0.25s ease; box-shadow: 0 8px 24px -6px rgba(0,0,0,0.3); }
+.telemetry-card:hover { transform: translateY(-3px); border-color: rgba(56, 189, 248, 0.5); }
+.telemetry-card__header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.telemetry-card__dot { width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; }
+.telemetry-card__dot--success { background: #34d399; }
+.telemetry-card__dot--warning { background: #fbbf24; }
+.telemetry-card__tag { font-size: 0.62rem; color: #94a3b8; font-weight: 500; letter-spacing: 0.02em; }
+.telemetry-card__value { font-size: 1.15rem; font-weight: 600; color: #ffffff; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.telemetry-card__value small { font-size: 0.65rem; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+.telemetry-card__label { font-size: 0.68rem; color: #94a3b8; margin-top: 4px; }
+.pond-art { width: 100%; max-width: 460px; margin-top: 24px; color: rgba(255, 255, 255, 0.28); opacity: 0.6; }
+.login-story__footer { position: relative; z-index: 2; font-size: 0.68rem; color: #94a3b8; letter-spacing: 0.08em; text-transform: uppercase; margin-top: auto; }
+.login-panel { position: relative; display: flex; align-items: center; justify-content: center; padding: 48px 32px; background: var(--bg-primary); overflow: hidden; min-height: 100%; }
+.login-panel__ambient { position: absolute; top: 12%; right: 12%; width: 360px; height: 360px; background: radial-gradient(circle, rgba(56, 189, 248, 0.06) 0%, transparent 70%); filter: blur(50px); pointer-events: none; }
+.login-theme-controls { position: absolute; top: 24px; right: 24px; z-index: 10; }
+.login-card { width: 100%; max-width: 390px; position: relative; z-index: 2; padding: 36px 32px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04); animation: loginCardFadeIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+:root[data-theme='dark'] .login-card { box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06); }
+@keyframes loginCardFadeIn { 0% { opacity: 0; transform: translateY(18px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.login-card__brand { margin-bottom: 28px; }
+.login-card__logo { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--bg-subsurface); border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.login-card__title { font-size: 1.85rem; font-weight: 600; letter-spacing: -0.045em; color: var(--text-primary); }
+.login-card__desc { font-size: 0.82rem; color: var(--text-muted); margin-top: 8px; line-height: 1.5; }
+.login-card .form-input { border-radius: var(--radius-sm); transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease; }
+.login-card .form-input:focus { border-color: #0284c7; box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.14); transform: translateY(-1px); }
+.login-card .btn--primary { position: relative; overflow: hidden; border-radius: 10px; font-weight: 600; font-size: 0.82rem; letter-spacing: 0.01em; min-height: 48px; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; }
+.login-card .btn--primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 22px -4px rgba(0, 0, 0, 0.25); }
+.login-card .btn--primary:active:not(:disabled) { transform: translateY(0); }
+.login-card .btn--primary::after { content: ''; position: absolute; top: -50%; left: -60%; width: 20%; height: 200%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent); transform: rotate(25deg); pointer-events: none; }
+.login-card .btn--primary:hover::after { left: 140%; transition: left 0.75s ease-in-out; }
+.login-card__footer { margin-top: 26px; font-size: 0.68rem; color: var(--text-muted); line-height: 1.8; text-align: center; }
+@media (max-width: 1180px) { .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dashboard-columns { grid-template-columns: minmax(0, 1fr); } .login-story { padding: 40px 32px; } .story-telemetry-grid { grid-template-columns: 1fr; gap: 8px; } }
+@media (max-width: 700px) { .login-page { grid-template-columns: 1fr; } .login-story { display: none; } .login-panel { min-height: 100dvh; padding: 88px 20px 32px; } .login-card { max-width: 100%; padding: 28px 20px; } .login-panel__ambient { display: block; position: absolute; top: 0; left: 0; right: 0; height: 240px; width: 100%; background-image: url('/camaronera-hero.jpg'); background-size: cover; background-position: center top; opacity: 0.12; mask-image: linear-gradient(to bottom, black 30%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%); } }
 @media (max-width: 600px) { .stat-card { padding: 16px; } .stat-card__top { gap: 6px; margin-bottom: 16px; } .stat-card__label { font-size: .64rem; } .stat-card__top .icon { width: 14px; } .stats-grid { gap: 10px; } .stat-card__foot { font-size: .59rem; } .dashboard-columns { gap: 18px; } .quick-action { padding: 13px; } }
+@media (prefers-reduced-motion: reduce) { .login-story__image, .login-story__glow, .status-pulse-dot, .login-card, .telemetry-card { animation: none !important; transition: none !important; transform: none !important; } .login-card .btn--primary:hover { transform: none !important; } .login-card .btn--primary::after { display: none !important; } }
