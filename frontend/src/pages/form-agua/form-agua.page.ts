@@ -7,12 +7,12 @@ import {
   fetchGranjas,
   fetchSiguienteCiclo,
   type GranjaRow
-} from '../../services/operacion.service.ts';
-import { fetchPiscinas } from '../../services/piscina.service.ts';
-import { calcularSiguienteCodigoCiclo, formatPiscinaNombre } from '../../core/ciclo-rule.ts';
-import type { PiscinaRow } from '../../core/models/index.ts';
-import { showToast } from '../../core/toast.ts';
-import { escapeHtml, formIntro } from '../../shared/ui.ts';
+} from '../../services/operacion.service';
+import { fetchPiscinas } from '../../services/piscina.service';
+import { calcularSiguienteCodigoCiclo, formatPiscinaNombre } from '../../core/ciclo-rule';
+import type { PiscinaRow } from '../../core/models/index';
+import { showToast } from '../../core/toast';
+import { escapeHtml, formIntro } from '../../shared/ui';
 
 function getParam(key: string): string {
   const params = new URLSearchParams(window.location.hash.split('?')[1] || '');

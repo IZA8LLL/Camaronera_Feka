@@ -1,4 +1,4 @@
-import { escapeHtml, icon, type IconName } from './ui.ts';
+import { escapeHtml, icon, type IconName } from './ui';
 
 interface NavigationItem { path: string; label: string; icon: IconName }
 const sections: { label: string; items: NavigationItem[] }[] = [

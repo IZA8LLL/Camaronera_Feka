@@ -1,8 +1,8 @@
-import { resolveRoute } from './app.routes.ts';
-import { getUser, logout } from './services/auth.service.ts';
-import { escapeHtml, icon } from './shared/ui.ts';
-import { initNavigation, renderNavigation } from './shared/navigation.ts';
-import { initThemeToggle, renderThemeToggle } from './shared/theme.ts';
+import { resolveRoute } from './app.routes';
+import { getUser, logout } from './services/auth.service';
+import { escapeHtml, icon } from './shared/ui';
+import { initNavigation, renderNavigation } from './shared/navigation';
+import { initThemeToggle, renderThemeToggle } from './shared/theme';
 
 let disposeNavigation: (() => void) | undefined;
 

@@ -1,29 +1,14 @@
 /* ═══════════════════════════════════════════════════════════
    By Fekas Corp. — Punto de Entrada Frontend (main.ts)
+   Bootstrap de Aplicación Angular Standalone
    ═══════════════════════════════════════════════════════════ */
-import './theme/variables.css';
-import { initAuth, isAuthenticated } from './services/auth.service.ts';
-import { renderAppShell } from './app.component.ts';
+import 'zone.js';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { appConfig } from './app/app.config';
+import { initAuth } from './services/auth.service';
 
 // Inicializar sesión y tokens almacenados
 initAuth();
 
-// Si no hay hash, redirigir al login o al dashboard
-if (!window.location.hash || window.location.hash === '#/') {
-  window.location.hash = isAuthenticated() ? '#/dashboard' : '#/login';
-}
-
-// Renderizar la aplicación inicial
-renderAppShell();
-
-// Escuchar cambios de hash para navegación instantánea SPA
-window.addEventListener('hashchange', () => {
-  renderAppShell();
-});
-
-// Soporte HMR para recarga instantánea durante desarrollo
-if (import.meta.hot) {
-  import.meta.hot.accept(() => {
-    renderAppShell();
-  });
-}
+bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));

@@ -2,10 +2,10 @@
    Login Page — Formulario de inicio de sesión
    Acceso monocromático con validación inline
    ═══════════════════════════════════════════════════════════ */
-import { login } from '../../services/auth.service.ts';
-import { showToast } from '../../core/toast.ts';
-import { icon } from '../../shared/ui.ts';
-import { renderThemeToggle } from '../../shared/theme.ts';
+import { login } from '../../services/auth.service';
+import { showToast } from '../../core/toast';
+import { icon } from '../../shared/ui';
+import { renderThemeToggle } from '../../shared/theme';
 
 export function renderLogin(): string {
   return `

@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════
    Compras Page — Proveedores y Órdenes de Insumos
    ═══════════════════════════════════════════════════════════ */
-import { fetchProveedores, fetchOrdenes, crearProveedor } from '../../services/compras.service.ts';
-import { showToast } from '../../core/toast.ts';
-import { escapeHtml, icon, pageHeader } from '../../shared/ui.ts';
+import { fetchProveedores, fetchOrdenes, crearProveedor } from '../../services/compras.service';
+import { showToast } from '../../core/toast';
+import { escapeHtml, icon, pageHeader } from '../../shared/ui';
 
 export function renderCompras(): string {
   return `

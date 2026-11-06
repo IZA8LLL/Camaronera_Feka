@@ -1,15 +1,15 @@
 /* ═══════════════════════════════════════════════════════════
    By Fekas Corp. — Enrutador SPA (Hash-based Routing)
    ═══════════════════════════════════════════════════════════ */
-import { authGuard } from './core/guards/auth.guard.ts';
-import { renderLogin, initLogin } from './pages/login/login.page.ts';
-import { renderDashboard, initDashboard } from './pages/dashboard/dashboard.page.ts';
-import { renderPiscinasList, initPiscinasList } from './pages/piscinas-list/piscinas-list.page.ts';
-import { renderFormMuestreo, initFormMuestreo } from './pages/form-muestreo/form-muestreo.page.ts';
-import { renderFormAgua, initFormAgua } from './pages/form-agua/form-agua.page.ts';
-import { renderFormAlimentacion, initFormAlimentacion } from './pages/form-alimentacion/form-alimentacion.page.ts';
-import { renderCompras, initCompras } from './pages/compras/compras.page.ts';
-import { isAuthenticated } from './services/auth.service.ts';
+import { authGuard } from './core/guards/auth.guard';
+import { renderLogin, initLogin } from './pages/login/login.page';
+import { renderDashboard, initDashboard } from './pages/dashboard/dashboard.page';
+import { renderPiscinasList, initPiscinasList } from './pages/piscinas-list/piscinas-list.page';
+import { renderFormMuestreo, initFormMuestreo } from './pages/form-muestreo/form-muestreo.page';
+import { renderFormAgua, initFormAgua } from './pages/form-agua/form-agua.page';
+import { renderFormAlimentacion, initFormAlimentacion } from './pages/form-alimentacion/form-alimentacion.page';
+import { renderCompras, initCompras } from './pages/compras/compras.page';
+import { isAuthenticated } from './services/auth.service';
 
 export interface RouteDefinition {
   path: string;

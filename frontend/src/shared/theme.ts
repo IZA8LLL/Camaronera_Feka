@@ -1,4 +1,4 @@
-import { icon } from './ui.ts';
+import { icon } from './ui';
 
 const STORAGE_KEY = 'by-fekas-theme';
 type Theme = 'light' | 'dark';
@@ -15,6 +15,8 @@ export function renderThemeToggle(): string {
 /** Actualiza solo el tema y el botón: conserva campos, foco y estado de la página. */
 export function initThemeToggle(root: HTMLElement): void {
   root.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach(button => {
+    if (button.dataset['themeBound']) return;
+    button.dataset['themeBound'] = 'true';
     button.addEventListener('click', () => {
       const theme: Theme = currentTheme() === 'dark' ? 'light' : 'dark';
       document.documentElement.dataset.theme = theme;

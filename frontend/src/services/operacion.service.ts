@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════
    Operacion Service — Muestreos, Agua, Alimentación, Lotes, Granjas, Ciclos
    ═══════════════════════════════════════════════════════════ */
-import { apiFetch } from './api.service.ts';
-import type { MuestreoPayload, AguaPayload, AlimentacionPayload } from '../core/models/index.ts';
+import { apiFetch } from './api.service';
+import type { MuestreoPayload, AguaPayload, AlimentacionPayload } from '../core/models/index';
 
 export interface LoteRow {
   id: string;

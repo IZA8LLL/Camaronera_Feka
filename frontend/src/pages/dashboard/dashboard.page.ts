@@ -2,10 +2,10 @@
    Dashboard Page — Panel Principal de Operaciones
    Diseño corporativo en escala pizarra y plata sin emojis
    ═══════════════════════════════════════════════════════════ */
-import { fetchPiscinas } from '../../services/piscina.service.ts';
-import type { PiscinaRow } from '../../core/models/index.ts';
-import { getUser } from '../../services/auth.service.ts';
-import { escapeHtml, icon, pageHeader, type IconName } from '../../shared/ui.ts';
+import { fetchPiscinas } from '../../services/piscina.service';
+import type { PiscinaRow } from '../../core/models/index';
+import { getUser } from '../../services/auth.service';
+import { escapeHtml, icon, pageHeader, type IconName } from '../../shared/ui';
 
 export function renderDashboard(): string {
   const user = getUser();

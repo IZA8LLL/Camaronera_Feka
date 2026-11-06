@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════
    Auth Interceptor — Inyección automática de Bearer Token
    ═══════════════════════════════════════════════════════════ */
-import { getAccessToken } from '../../services/api.service.ts';
+import { getAccessToken } from '../../services/api.service';
 
 /**
  * Adjunta la cabecera Authorization con el token JWT si está disponible.

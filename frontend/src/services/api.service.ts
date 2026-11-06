@@ -2,7 +2,7 @@
    API Service — HttpClient base con interceptors
    Maneja tokens, refresh automático y errores globales
    ═══════════════════════════════════════════════════════════ */
-import type { ApiError } from '../core/models/index.ts';
+import type { ApiError } from '../core/models/index';
 
 const BASE_URL = '';  // Proxy de Vite redirige a localhost:3000
 

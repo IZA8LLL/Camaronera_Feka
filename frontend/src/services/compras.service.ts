@@ -2,8 +2,8 @@
    Compras & Proveedores Service
    Gestión de proveedores (cifrado AES) y órdenes de insumos
    ═══════════════════════════════════════════════════════════ */
-import { apiFetch } from './api.service.ts';
-import type { Proveedor, OrdenCompra } from '../core/models/index.ts';
+import { apiFetch } from './api.service';
+import type { Proveedor, OrdenCompra } from '../core/models/index';
 
 export async function fetchProveedores(): Promise<Proveedor[]> {
   return apiFetch<Proveedor[]>('/api/proveedores');

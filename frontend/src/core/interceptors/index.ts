@@ -1,2 +1,2 @@
-export * from './auth.interceptor.ts';
-export * from './error.interceptor.ts';
+export * from './auth.interceptor';
+export * from './error.interceptor';

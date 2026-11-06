@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════
    Error Interceptor — Manejo global de errores HTTP (401, 403, 500)
    ═══════════════════════════════════════════════════════════ */
-import { showToast } from '../toast.ts';
+import { showToast } from '../toast';
 
 export interface HttpErrorResponse {
   status: number;

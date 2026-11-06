@@ -2,9 +2,9 @@
    Piscinas List Page — Listado de estanques con tarjetas
    Muestra estado, métricas de agua y acciones por piscina
    ═══════════════════════════════════════════════════════════ */
-import { fetchPiscinas } from '../../services/piscina.service.ts';
-import type { PiscinaRow } from '../../core/models/index.ts';
-import { escapeHtml, pageHeader } from '../../shared/ui.ts';
+import { fetchPiscinas } from '../../services/piscina.service';
+import type { PiscinaRow } from '../../core/models/index';
+import { escapeHtml, pageHeader } from '../../shared/ui';
 
 export function renderPiscinasList(): string {
   return `
