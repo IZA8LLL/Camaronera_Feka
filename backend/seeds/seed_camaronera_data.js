@@ -715,7 +715,7 @@ async function seedDatabase() {
       granja_id: G1,
       proveedor_id: PRV2,
       bodega_id: BOD1,
-      numero: 'OC-2026-0001',
+      numero: 'OC-2026-0011',
       fecha: new Date('2026-07-20T10:00:00.000Z'),
       estado: 'recibida',
       total: Decimal('3250.00'),
@@ -737,7 +737,7 @@ async function seedDatabase() {
       granja_id: G1,
       proveedor_id: PRV2,
       bodega_id: BOD1,
-      numero: 'OC-2026-0002',
+      numero: 'OC-2026-0012',
       fecha: new Date('2026-08-10T10:30:00.000Z'),
       estado: 'recibida',
       total: Decimal('4200.00'),
@@ -759,7 +759,7 @@ async function seedDatabase() {
       granja_id: G2,
       proveedor_id: PRV4,
       bodega_id: BOD3,
-      numero: 'OC-2026-0003',
+      numero: 'OC-2026-0013',
       fecha: new Date('2026-08-15T11:00:00.000Z'),
       estado: 'aprobada',
       total: Decimal('1750.00'),
@@ -781,7 +781,7 @@ async function seedDatabase() {
       granja_id: G3,
       proveedor_id: PRV5,
       bodega_id: BOD4,
-      numero: 'OC-2026-0004',
+      numero: 'OC-2026-0014',
       fecha: new Date('2026-09-01T09:15:00.000Z'),
       estado: 'borrador',
       total: Decimal('900.00'),
@@ -803,7 +803,7 @@ async function seedDatabase() {
       granja_id: G4,
       proveedor_id: PRV3,
       bodega_id: BOD5,
-      numero: 'OC-2026-0005',
+      numero: 'OC-2026-0015',
       fecha: new Date('2026-09-15T14:00:00.000Z'),
       estado: 'cancelada',
       total: Decimal('1200.00'),
@@ -927,7 +927,7 @@ async function seedDatabase() {
       cantidad: Decimal('2500.00'),
       saldo_posterior: Decimal('2500.00'),
       referencia: 'KDX-ING-001',
-      motivo: 'Recepción inicial por compra según orden OC-2026-0001',
+      motivo: 'Recepción inicial por compra según orden OC-2026-0011',
       created_at: FECHA_BASE,
       updated_at: FECHA_NOW
     },
@@ -959,7 +959,7 @@ async function seedDatabase() {
       cantidad: Decimal('3500.00'),
       saldo_posterior: Decimal('3500.00'),
       referencia: 'KDX-ING-002',
-      motivo: 'Recepción de balanceado de engorde según orden OC-2026-0002',
+      motivo: 'Recepción de balanceado de engorde según orden OC-2026-0012',
       created_at: FECHA_BASE,
       updated_at: FECHA_NOW
     },
@@ -2386,14 +2386,31 @@ async function seedDatabase() {
     await db.collection('usuarios').updateOne(
       { _id: existingUser._id },
       {
+        $addToSet: {
+          granja_ids: { $each: [G1, G2, G3, G4, G5] },
+          piscina_ids: { $each: [P1, P2, P3, P4, P5] }
+        },
         $set: {
-          granja_ids: [G1, G2, G3, G4, G5],
-          piscina_ids: [P1, P2, P3, P4, P5],
           updated_at: new Date()
         }
       }
     );
-    console.log('\n✓ Asignadas las 5 granjas y 5 piscinas al usuario Administrador para operación total.');
+    console.log('\n✓ Asignadas las 5 granjas y 5 piscinas adicionales al usuario Administrador.');
+  }
+
+  if (existingRole) {
+    await db.collection('roles').updateOne(
+      { _id: existingRole._id },
+      {
+        $addToSet: {
+          permiso_ids: { $each: [PERM_GRANJAS_LEER, PERM_COSECHAS_CREAR, PERM_COSECHAS_APROBAR, PERM_CALIDAD_CREAR, PERM_NOMINA_APROBAR] }
+        },
+        $set: {
+          updated_at: new Date()
+        }
+      }
+    );
+    console.log('✓ Asignados nuevos permisos de módulos al Rol Administrador.');
   }
 
   console.log('\n🎉 ¡Poblado completado con éxito! Se añadieron 5 datos relacionales a todas las colecciones.');
