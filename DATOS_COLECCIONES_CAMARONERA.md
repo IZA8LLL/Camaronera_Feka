@@ -48,6 +48,7 @@ El código fuente ejecutable para poblar o reiniciar estos datos se encuentra en
 📁 **[`backend/seeds/seed_camaronera_data.js`](backend/seeds/seed_camaronera_data.js)**
 
 Para ejecutarlo nuevamente en cualquier momento:
+Configure `SEED_USER_PASSWORD` con una contraseña única de al menos 14 caracteres en `backend/.env`. Esta carga de muestra está deshabilitada cuando `NODE_ENV=production`.
 ```bash
 cd backend
 npm run seed

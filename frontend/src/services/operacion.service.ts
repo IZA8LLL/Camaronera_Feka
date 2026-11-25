@@ -1,6 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Operacion Service — Muestreos, Agua, Alimentación, Lotes, Granjas, Ciclos
-   ═══════════════════════════════════════════════════════════ */
 import { apiFetch } from './api.service';
 import type { MuestreoPayload, AguaPayload, AlimentacionPayload } from '../core/models/index';
 

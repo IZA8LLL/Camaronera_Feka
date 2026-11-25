@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Auth Guard — Protección de Rutas Angular
-   Verifica token de sesión en localStorage antes de navegar
-   ═══════════════════════════════════════════════════════════ */
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { isAuthenticated } from '../../services/auth.service';

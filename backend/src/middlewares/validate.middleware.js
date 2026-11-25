@@ -22,7 +22,6 @@ function parse(schema, req, res, next) {
 // Factory para crear middleware de validación
 const validate = (schema) => (req, res, next) => parse(schema, req, res, next);
 
-// ─── DTOs ─────────────────────────────────────────────────
 const loginDto = z.object({
   tenant_id: oid().optional(),
   email: z.string().email().max(254),

@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   By Fekas Corp. — Punto de Entrada Frontend (main.ts)
-   Bootstrap de Aplicación Angular Standalone
-   ═══════════════════════════════════════════════════════════ */
 import 'zone.js';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';

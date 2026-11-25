@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Form Alimentación Page — Registro de consumo diario de alimento
-   Selección mediante menús desplegables (Granja, Piscina, Ciclo, Lote)
-   ═══════════════════════════════════════════════════════════ */
 import {
   crearAlimentacion,
   crearCiclo,

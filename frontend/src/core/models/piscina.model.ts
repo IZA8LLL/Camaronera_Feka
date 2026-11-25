@@ -1,6 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Modelo Piscina / Estanque y Vista Desnormalizada
-   ═══════════════════════════════════════════════════════════ */
 
 export interface PiscinaRow {
   id: string;

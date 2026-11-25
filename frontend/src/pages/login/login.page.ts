@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Login Page — Formulario de inicio de sesión
-   Acceso monocromático con validación inline
-   ═══════════════════════════════════════════════════════════ */
 import { login } from '../../services/auth.service';
 import { showToast } from '../../core/toast';
 import { icon } from '../../shared/ui';

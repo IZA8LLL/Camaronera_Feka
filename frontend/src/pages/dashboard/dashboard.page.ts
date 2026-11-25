@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Dashboard Page — Panel Principal de Operaciones
-   Diseño corporativo en escala pizarra y plata sin emojis
-   ═══════════════════════════════════════════════════════════ */
 import { fetchPiscinas } from '../../services/piscina.service';
 import type { PiscinaRow } from '../../core/models/index';
 import { getUser } from '../../services/auth.service';

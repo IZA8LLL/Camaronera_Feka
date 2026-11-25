@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Form Agua Page — Formulario de parámetros de calidad de agua
-   Selección mediante menús desplegables (Granja, Piscina, Ciclo)
-   ═══════════════════════════════════════════════════════════ */
 import {
   crearParametrosAgua,
   crearCiclo,

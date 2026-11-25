@@ -1,46 +1,10 @@
 'use strict';
-/**
- * ══════════════════════════════════════════════════════════════════════════════
- * BY FEKAS CORP. — ERP CAMARONERA
- * SCRIPT DE POBLADO DE DATOS (SEEDER) Y DICCIONARIO DE DATOS COMENTADO
- * ══════════════════════════════════════════════════════════════════════════════
- * 
- * Este archivo contiene 5 documentos estructurados y relacionados para cada una
- * de las 26 colecciones de la base de datos MongoDB Atlas ('by_fekas_corp_db').
- * 
- * ESTRUCTURA DE RELACIONES (MODELO ACUÍCOLA INTEGRAL):
- * 1. TENANT MULTI-EMPRESA:
- *    - Todas las entidades pertenecen al Tenant 'By Fekas Corp' (aislamiento lógico).
- * 
- * 2. FLUJO OPERATIVO ACUÍCOLA:
- *    - Granjas Camaroneras -> Piscinas / Estanques -> Ciclos de Cultivo
- *    - Siembras de Post-Larvas -> Parámetros Físico-Químicos del Agua
- *    - Planes de Alimentación -> Consumo Diario de Balanceado -> Muestreos Biométricos
- *    - Registro de Mortalidad -> Cosechas / Pescas -> Control de Calidad Organoléptico
- * 
- * 3. FLUJO DE CADENA DE SUMINISTRO Y LOGÍSTICA:
- *    - Proveedores (RUC cifrado AES-256-GCM) -> Catálogo de Insumos/Productos
- *    - Órdenes de Compra -> Bodegas de Granja -> Lotes de Inventario
- *    - Movimientos de Kardex (Entradas por compra, Salidas a piscinas, Ajustes)
- * 
- * 4. FLUJO COMERCIAL Y FINANCIERO:
- *    - Clientes Empacadoras (RUC cifrado) -> Facturas de Venta de Camarón
- *    - Cuentas por Pagar (a Proveedores) y Cuentas por Cobrar (a Empacadoras)
- *    - Nómina de Personal de Campo (Roles de pago con cuentas cifradas)
- * 
- * 5. SEGURIDAD, RBAC Y AUDITORÍA:
- *    - Permisos Granulares -> Roles Profesionales (Biólogo, Operador, Bodeguero, etc.)
- *    - Usuarios (Argon2id + Cédulas Cifradas) -> Sesiones JWT Activas
- *    - Logs de Auditoría Inmutables con Hashing de Direcciones IP
- * ══════════════════════════════════════════════════════════════════════════════
- */
+/** Datos de muestra para las colecciones del ERP. No ejecutar sobre datos de producción. */
 
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const mongoose = require('mongoose');
 const argon2 = require('argon2');
 const { createHash } = require('node:crypto');
-const { connectDB } = require('../src/config/db');
-const { encrypt } = require('../src/services/crypto.service');
 
 // Tipos BSON exactos requeridos por los validadores estrictos $jsonSchema
 const ObjectId = (idStr) => idStr ? new mongoose.Types.ObjectId(idStr) : new mongoose.Types.ObjectId();
@@ -53,13 +17,19 @@ const FECHA_BASE = new Date('2026-08-01T08:00:00.000Z');
 const FECHA_NOW = new Date('2026-10-28T12:00:00.000Z');
 
 async function seedDatabase() {
-  console.log('🦐 Iniciando poblado integral de datos para ERP Camaronera...\n');
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('La carga de datos de muestra está deshabilitada en producción.');
+  }
+  const samplePassword = process.env.SEED_USER_PASSWORD;
+  if (!samplePassword || samplePassword.length < 14) {
+    throw new Error('Configure SEED_USER_PASSWORD con al menos 14 caracteres para crear usuarios de muestra.');
+  }
+  const { connectDB } = require('../src/config/db');
+  const { encrypt } = require('../src/services/crypto.service');
+  console.log('Iniciando poblado integral de datos para ERP Camaronera...\n');
   await connectDB();
   const db = mongoose.connection.db;
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 0. IDENTIFICADORES MAESTROS PRE-ASIGNADOS PARA MANTENER LA INTEGRIDAD
-  // ──────────────────────────────────────────────────────────────────────────
   // Obtenemos el tenant y usuario administrador creados durante el bootstrap inicial
   const existingUser = await db.collection('usuarios').findOne({ email: 'admin@fekascorp.com' });
   const existingRole = await db.collection('roles').findOne({ codigo: 'administrador' });
@@ -174,16 +144,13 @@ async function seedDatabase() {
   const PERM_NOMINA_APROBAR = ObjectId();
 
   // Contraseña encriptada con Argon2id para los nuevos usuarios
-  const passwordHash = await argon2.hash('CamaronSeguro2026!', {
+  const passwordHash = await argon2.hash(samplePassword, {
     type: argon2.argon2id,
     memoryCost: 65536,
     timeCost: 3,
     parallelism: 1
   });
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 1. COLECCIÓN: granjas_camaroneras (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Representa los centros productivos de camaroneras ubicados en zonas
   // estratégicas del litoral ecuatoriano (El Oro y Guayas).
   const granjas = [
@@ -248,10 +215,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 2. COLECCIÓN: piscinas_estanques (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Estanques de cultivo con sus dimensiones físicas, profundidad hidráulica
   // y volumen en m3 para cálculo preciso de biomasa y dosificación de tratamientos.
   const piscinas = [
@@ -316,10 +280,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 3. COLECCIÓN: ciclos_cultivo (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Cada ciclo agrupa la vida productiva de una piscina desde la siembra hasta
   // la cosecha, manteniendo trazabilidad de biomasa estimada y especie criada.
   const ciclos = [
@@ -391,10 +352,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 4. COLECCIÓN: proveedores (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Proveedores estratégicos de larvas, alimentos balanceados e insumos biológicos.
   // Cumplen con cifrado obligatorio AES-256-GCM para RUC y números de cuenta bancaria.
   const ruc1 = encrypt('0992345678001');
@@ -490,10 +448,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 5. COLECCIÓN: siembras_larvas (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Registro técnico de siembra: cantidad de post-larvas (PL-10 a PL-12),
   // densidad por metro cuadrado, lote genético y supervivencia esperada.
   const siembras = [
@@ -568,10 +523,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 6. COLECCIÓN: insumos_productos (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Catálogo estandarizado de balanceados, probióticos, fertilizantes y correctores.
   const insumos = [
     {
@@ -635,10 +587,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 7. COLECCIÓN: bodegas (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Almacenes físicos de cada granja dedicados al control y resguardo de alimentos,
   // reactivos químicos y herramientas de campo.
   const bodegas = [
@@ -703,10 +652,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 8. COLECCIÓN: ordenes_compra (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Órdenes de abastecimiento emitidas a proveedores para reabastecer bodegas.
   const ordenes = [
     {
@@ -820,10 +766,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 9. COLECCIÓN: lotes_inventario (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Seguimiento de inventario por lote de fabricación, fecha de caducidad
   // y costo promedio unitario para valoración FIFO.
   const lotes = [
@@ -908,10 +851,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 10. COLECCIÓN: movimientos_kardex (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Histórico transaccional de movimientos en bodega: entradas, salidas
   // por alimentación a piscinas y ajustes auditables con saldo posterior.
   const kardex = [
@@ -996,10 +936,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 11. COLECCIÓN: planes_alimentacion (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Tabla de alimentación recomendada por el biólogo según la curva de crecimiento,
   // peso proyectado y biomasa estimada.
   const planes = [
@@ -1079,10 +1016,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 12. COLECCIÓN: consumo_alimento_diario (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Consumos ejecutados en campo con cálculo del Factor de Conversión Alimenticia (FCA)
   // y actualización de biomasa estimada.
   const consumos = [
@@ -1172,10 +1106,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 13. COLECCIÓN: parametros_agua (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Mediciones de sonda multiparamétrica en estanques (oxígeno disuelto,
   // salinidad, pH, temperatura y amonio tóxico) con disparo de alerta temprana.
   const parametrosAgua = [
@@ -1265,10 +1196,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 14. COLECCIÓN: muestreos_biometricos (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Muestreos con atarraya para pesaje con balanza de precisión, medición de talla
   // y proyección del crecimiento semanal del camarón (GPD = gramos por día).
   const muestreos = [
@@ -1353,10 +1281,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 15. COLECCIÓN: registro_mortalidad (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Conteo de mermas y detección oportuna de eventos sanitarios en orillas y filtros.
   const mortalidad = [
     {
@@ -1430,10 +1355,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 16. COLECCIÓN: cosechas_pesca (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Pesca y extracción de camarón: pesaje con bines calibrados, hielo líquido
   // y metamisulfito de sodio para fijación de calidad.
   const cosechas = [
@@ -1513,10 +1435,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 17. COLECCIÓN: control_calidad_cosecha (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Análisis de inocuidad y laboratorio post-cosecha: concentración de metabisulfito
   // (PPM residual < 100 ppm permitido), textura muscular y ausencia de manchas.
   const controlCalidad = [
@@ -1596,10 +1515,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 18. COLECCIÓN: clientes_empacadoras (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Principales empacadoras y exportadoras ecuatorianas de camarón.
   // Cumplen con cifrado obligatorio AES-256-GCM para RUC.
   const rucEmp1 = encrypt('0990045612001');
@@ -1675,10 +1591,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 19. COLECCIÓN: facturas_venta (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Facturas electrónicas por venta de libras/kilos de camarón entero o cola
   // entregado en planta empacadora (Tarifa 0% IVA en exportación de mariscos en Ecuador).
   const facturas = [
@@ -1768,10 +1681,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 20. COLECCIÓN: cuentas_por_pagar_cobrar (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Gestión de tesorería y flujo de caja (CXP a proveedores y CXC a empacadoras).
   const cuentas = [
     {
@@ -1855,10 +1765,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 21. COLECCIÓN: nomina_empleados_campo (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Rol de pagos para biólogos, operadores de bombeo, atarrayadores y bodegueros.
   // Cumple con deducción de aporte personal IESS (9.45% en Ecuador) y cuentas cifradas.
   const ctaEmp1 = encrypt('1200112233');
@@ -1964,10 +1871,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 22. COLECCIÓN: permisos (5 Nuevos Registros RBAC)
-  // ──────────────────────────────────────────────────────────────────────────
   // Permisos granulares orientados al control de operaciones de cultivo y cosecha.
   const permisos = [
     {
@@ -2021,10 +1925,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 23. COLECCIÓN: roles (5 Nuevos Roles)
-  // ──────────────────────────────────────────────────────────────────────────
   // Perfiles de puesto con asignación de permisos según el principio de menor privilegio.
   const roles = [
     {
@@ -2078,10 +1979,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 24. COLECCIÓN: usuarios (5 Nuevos Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Usuarios operativos con contraseñas encriptadas mediante Argon2id,
   // cédulas cifradas con AES-256-GCM y asignación de alcance (granjas y piscinas).
   const ced1 = encrypt('0704561234');
@@ -2177,10 +2075,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 25. COLECCIÓN: sesiones_activas (5 Nuevos Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Sesiones JWT autenticadas con hash SHA-256 de JTI, rotación y huella de navegador.
   const sesiones = [
     {
@@ -2254,10 +2149,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // 26. COLECCIÓN: logs_auditoria (5 Registros)
-  // ──────────────────────────────────────────────────────────────────────────
   // Pistas de auditoría inmutables para operaciones críticas en el ERP camaronero.
   const auditoria = [
     {
@@ -2331,10 +2223,7 @@ async function seedDatabase() {
       updated_at: FECHA_NOW
     }
   ];
-
-  // ──────────────────────────────────────────────────────────────────────────
   // EJECUCIÓN SECUENCIAL DE INSERCIÓN EN MONGODB ATLAS
-  // ──────────────────────────────────────────────────────────────────────────
   const colecciones = [
     { name: 'granjas_camaroneras', docs: granjas },
     { name: 'piscinas_estanques', docs: piscinas },
@@ -2364,24 +2253,21 @@ async function seedDatabase() {
     { name: 'logs_auditoria', docs: auditoria }
   ];
 
-  console.log('📦 Insertando 5 registros con sus relaciones en las 26 colecciones...');
+  console.log('Insertando 5 registros con sus relaciones en las 26 colecciones...');
 
   for (const col of colecciones) {
     try {
       const res = await db.collection(col.name).insertMany(col.docs, { ordered: true });
-      console.log(`   ✓ [${col.name}] Insertados ${res.insertedCount} registros exitosamente.`);
+      console.log(`   [${col.name}] Insertados ${res.insertedCount} registros exitosamente.`);
     } catch (err) {
-      console.error(`   ❌ Error insertando en [${col.name}]:`, err.message);
+      console.error(`   Error insertando en [${col.name}]:`, err.message);
       if (err.errInfo) {
         console.error('      Detalles de schema validator:', JSON.stringify(err.errInfo.details, null, 2));
       }
       throw err;
     }
   }
-
-  // ──────────────────────────────────────────────────────────────────────────
   // ACTUALIZACIÓN DEL USUARIO ADMINISTRADOR CON ACCESO A LAS GRANJAS Y PISCINAS
-  // ──────────────────────────────────────────────────────────────────────────
   if (existingUser) {
     await db.collection('usuarios').updateOne(
       { _id: existingUser._id },
@@ -2395,7 +2281,7 @@ async function seedDatabase() {
         }
       }
     );
-    console.log('\n✓ Asignadas las 5 granjas y 5 piscinas adicionales al usuario Administrador.');
+    console.log('\nAsignadas las 5 granjas y 5 piscinas adicionales al usuario Administrador.');
   }
 
   if (existingRole) {
@@ -2410,10 +2296,10 @@ async function seedDatabase() {
         }
       }
     );
-    console.log('✓ Asignados nuevos permisos de módulos al Rol Administrador.');
+    console.log('Asignados nuevos permisos de módulos al Rol Administrador.');
   }
 
-  console.log('\n🎉 ¡Poblado completado con éxito! Se añadieron 5 datos relacionales a todas las colecciones.');
+  console.log('\n¡Poblado completado con éxito! Se añadieron 5 datos relacionales a todas las colecciones.');
 }
 
 if (require.main === module) {

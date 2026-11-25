@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const argon2 = require('argon2');
 const { schemaOptions } = require('../config/helpers');
 
-// ─── Usuario ──────────────────────────────────────────────
 const userSchema = new mongoose.Schema({
   tenant_id: { type: mongoose.Schema.Types.ObjectId, required: true, immutable: true },
   email: { type: String, required: true, lowercase: true, trim: true },
@@ -37,7 +36,6 @@ userSchema.pre('save', async function () {
 
 const Usuario = mongoose.model('Usuario', userSchema, 'usuarios');
 
-// ─── Rol ──────────────────────────────────────────────────
 const rolSchema = new mongoose.Schema({
   tenant_id: mongoose.Schema.Types.ObjectId,
   codigo: String,
@@ -48,7 +46,6 @@ const rolSchema = new mongoose.Schema({
 
 const Rol = mongoose.model('Rol', rolSchema, 'roles');
 
-// ─── Permiso ──────────────────────────────────────────────
 const permisoSchema = new mongoose.Schema({
   tenant_id: mongoose.Schema.Types.ObjectId,
   codigo: String,
@@ -59,7 +56,6 @@ const permisoSchema = new mongoose.Schema({
 
 const Permiso = mongoose.model('Permiso', permisoSchema, 'permisos');
 
-// ─── Sesión Activa ────────────────────────────────────────
 const sesionSchema = new mongoose.Schema({
   tenant_id: mongoose.Schema.Types.ObjectId,
   usuario_id: mongoose.Schema.Types.ObjectId,

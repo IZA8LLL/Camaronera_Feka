@@ -1,6 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Modelo Parámetros de Calidad de Agua
-   ═══════════════════════════════════════════════════════════ */
 
 export interface AguaPayload {
   granja_id: string;

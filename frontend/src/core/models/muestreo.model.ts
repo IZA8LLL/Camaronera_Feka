@@ -1,6 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Modelo Muestreo Biométrico
-   ═══════════════════════════════════════════════════════════ */
 
 export interface MuestreoPayload {
   granja_id: string;

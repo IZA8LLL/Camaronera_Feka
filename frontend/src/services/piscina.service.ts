@@ -1,6 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Piscina Service — Peticiones de piscinas y estados
-   ═══════════════════════════════════════════════════════════ */
 import { apiFetch } from './api.service';
 import type { PiscinaRow } from '../core/models/index';
 

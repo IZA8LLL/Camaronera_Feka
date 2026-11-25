@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const { base, schemaOptions } = require('../config/helpers');
 const { tenantScope } = require('../middlewares/tenant.middleware');
 
-// ─── Lote de Inventario ───────────────────────────────────
 const loteSchema = new mongoose.Schema({
   ...base,
   bodega_id: mongoose.Schema.Types.ObjectId,
@@ -23,7 +22,6 @@ loteSchema.plugin(tenantScope);
 
 const Lote = mongoose.model('Lote', loteSchema, 'lotes_inventario');
 
-// ─── Movimientos Kardex ───────────────────────────────────
 const kardexSchema = new mongoose.Schema({
   ...base,
   bodega_id: mongoose.Schema.Types.ObjectId,

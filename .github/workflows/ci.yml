@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   frontend:
-    name: Frontend build
+    name: Frontend build and dependency audit
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -24,10 +24,29 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm run typecheck
       - run: npm run build
 
+  e2e:
+    name: Frontend browser tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+
   backend:
-    name: Backend validation
+    name: Backend tests and dependency audit
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -40,6 +59,7 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
       - run: npm ci
+      - run: npm audit --omit=dev --audit-level=critical
       - run: npm test
       - name: Check JavaScript syntax
         shell: bash

@@ -13,6 +13,8 @@ npm run dev
 
 Angular CLI atiende en el puerto 5173 y usa `proxy.conf.json` para redirigir `/auth`, `/api` y `/health` al backend local en el puerto 3000. Las operaciones reales necesitan el backend y su configuración. No se incluyen credenciales ni datos de demostración en la aplicación.
 
+La tipografía usa fuentes del sistema para que la compilación no dependa de un proveedor externo de fuentes.
+
 ## Organización
 
 ```text
@@ -36,6 +38,8 @@ src/
   core/                   Modelos, guardas y notificaciones
 tests/erp.spec.ts          Regresión de interfaz con API simulada
 ```
+
+El recorrido de ejecución es `src/main.ts` → `src/app/app.config.ts` y `src/app/app.routes.ts` → componentes de `src/app/pages/` → vistas de `src/pages/` → servicios de `src/services/`. Las vistas comparten tipos y funciones de `src/core/` y `src/shared/`. `src/app/shared/safe-html.pipe.ts` sigue en uso por el shell Angular; su sustitución corresponde a la fase de endurecimiento de HTML.
 
 ## Pantallas disponibles
 

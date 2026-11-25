@@ -1,6 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   By Fekas Corp. — Modelos Core Frontend (Barrel Export)
-   ═══════════════════════════════════════════════════════════ */
 
 export * from './usuario.model';
 export * from './piscina.model';

@@ -1,6 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Auth Service — Login, Refresh, Logout, estado de sesión
-   ═══════════════════════════════════════════════════════════ */
 import { apiFetch, setAccessToken } from './api.service';
 import type { AuthResponse, MeResponse, UserInfo } from '../core/models/index';
 

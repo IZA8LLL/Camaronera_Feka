@@ -44,16 +44,16 @@ async function connectDB() {
   if (env.MONGO_TLS_CERT_KEY_FILE) opts.tlsCertificateKeyFile = env.MONGO_TLS_CERT_KEY_FILE;
 
   await mongoose.connect(env.MONGO_URI, opts);
-  console.log('✓ MongoDB conectado');
+  console.log('MongoDB conectado');
 
   // Verificar que sea replica set o Atlas (necesario para transacciones)
   try {
     const hello = await mongoose.connection.db.admin().command({ hello: 1 });
     if (!hello.setName && hello.msg !== 'isdbgrid') {
-      console.warn('⚠ Se recomienda MongoDB replica set para transacciones de inventario');
+      console.warn('Se recomienda MongoDB replica set para transacciones de inventario');
     }
   } catch (e) {
-    console.warn('⚠ No se pudo verificar el tipo de deployment MongoDB');
+    console.warn('No se pudo verificar el tipo de deployment MongoDB');
   }
 
   // Verificar roles (solo en producción)
@@ -70,7 +70,7 @@ async function connectDB() {
       }
     } catch (e) {
       if (e.message.includes('permisos administrativos')) throw e;
-      console.warn('⚠ No se pudo verificar los roles de la cuenta MongoDB');
+      console.warn('No se pudo verificar los roles de la cuenta MongoDB');
     }
   }
 

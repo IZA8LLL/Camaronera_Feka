@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Piscinas List Page — Listado de estanques con tarjetas
-   Muestra estado, métricas de agua y acciones por piscina
-   ═══════════════════════════════════════════════════════════ */
 import { fetchPiscinas } from '../../services/piscina.service';
 import type { PiscinaRow } from '../../core/models/index';
 import { formatMeasurementDate } from '../../core/measurement';

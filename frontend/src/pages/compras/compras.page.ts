@@ -1,6 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Compras Page — Proveedores y Órdenes de Insumos
-   ═══════════════════════════════════════════════════════════ */
 import { fetchProveedores, fetchOrdenes, crearProveedor } from '../../services/compras.service';
 import { showToast } from '../../core/toast';
 import { escapeHtml, icon, pageHeader } from '../../shared/ui';
@@ -9,7 +6,6 @@ export function renderCompras(): string {
   return `
     ${pageHeader('Compras y proveedores', 'Tu red de abastecimiento y las órdenes de insumos, en un solo lugar.', 'Abastecimiento', `<button class="btn btn--primary" id="btn-toggle-modal-prov" aria-controls="modal-prov" aria-expanded="false">${icon('plus')} Nuevo proveedor</button>`)}
 
-    <!-- Modal Nuevo Proveedor -->
     <section id="modal-prov" class="card provider-panel animate-card-enter" aria-labelledby="provider-title" style="display:none;">
       <div class="card__header">
         <h2 class="card__title" id="provider-title">Registrar proveedor</h2>
@@ -49,7 +45,6 @@ export function renderCompras(): string {
     </section>
 
     <div class="purchases-grid">
-      <!-- Proveedores -->
       <div class="card animate-card-enter delay-1">
         <div class="card__header">
           <h2 class="card__title">Directorio de Proveedores</h2>
@@ -62,7 +57,6 @@ export function renderCompras(): string {
         </div>
       </div>
 
-      <!-- Órdenes de Compra -->
       <div class="card animate-card-enter delay-2">
         <div class="card__header">
           <h2 class="card__title">Órdenes de Compra de Insumos</h2>

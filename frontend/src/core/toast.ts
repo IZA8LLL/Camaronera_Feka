@@ -1,9 +1,5 @@
-/* ═══════════════════════════════════════════════════════════
-   Toast Manager — Sistema de notificaciones
-   ═══════════════════════════════════════════════════════════ */
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
-
 
 let container: HTMLDivElement | null = null;
 

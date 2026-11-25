@@ -1,7 +1,7 @@
 /* Cliente HTTP compartido: token de acceso, renovación y errores de la API. */
 import type { ApiError } from '../core/models/index';
 
-const BASE_URL = '';  // Proxy de Vite redirige a localhost:3000
+const BASE_URL = ''; // La aplicación usa el mismo origen y el proxy local reenvía la API.
 
 let accessToken: string | null = null;
 let refreshPromise: Promise<boolean> | null = null;

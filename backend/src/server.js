@@ -1,8 +1,4 @@
 'use strict';
-/* ═══════════════════════════════════════════════════════════
-   By Fekas Corp. — ERP Camaronera | Servidor Principal
-   Express + Helmet + Rate Limit + CORS + MongoDB
-   ═══════════════════════════════════════════════════════════ */
 const express = require('express');
 const helmet = require('helmet');
 const { rateLimit } = require('express-rate-limit');
@@ -22,7 +18,6 @@ const { Usuario, Rol, Permiso } = require('./models/usuario.model');
 
 const app = express();
 
-// ─── Seguridad de cabeceras ───────────────────────────────
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 
@@ -40,7 +35,6 @@ app.use(helmet({
   noSniff: true
 }));
 
-// ─── CORS ─────────────────────────────────────────────────
 app.use(cors({
   origin: env.APP_ORIGIN,
   credentials: true,
@@ -48,7 +42,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// ─── HTTPS redirect (solo producción) ─────────────────────
 if (!isDev) {
   app.use((req, res, next) => {
     if (req.secure) return next();
@@ -56,14 +49,11 @@ if (!isDev) {
   });
 }
 
-// ─── Body parsing y cookies ───────────────────────────────
 app.use(express.json({ limit: '64kb' }));
 app.use(cookieParser());
 
-// ─── NoSQL sanitization ──────────────────────────────────
 app.use(sanitize);
 
-// ─── Rate limiting global ─────────────────────────────────
 app.use(rateLimit({
   windowMs: 60_000,
   limit: 120,
@@ -71,11 +61,9 @@ app.use(rateLimit({
   legacyHeaders: false
 }));
 
-// ─── Rutas ────────────────────────────────────────────────
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 
-// ─── Health check ─────────────────────────────────────────
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -84,7 +72,6 @@ app.get('/health', (req, res) => {
   });
 });
 
-// ─── Manejo global de errores ─────────────────────────────
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     return res.status(413).json({ error: 'Archivo excede límites' });
@@ -101,7 +88,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Error interno' });
 });
 
-// ─── Bootstrap: alta inicial ──────────────────────────────
 async function bootstrap() {
   if (!env.BOOTSTRAP_EMAIL || !env.BOOTSTRAP_PASSWORD) {
     throw new Error('Defina BOOTSTRAP_EMAIL y BOOTSTRAP_PASSWORD');
@@ -148,14 +134,13 @@ async function bootstrap() {
     piscina_ids: []
   });
 
-  console.log(`\n🦐 Bootstrap completado:`);
+  console.log(`\nBootstrap completado:`);
   console.log(`   Tenant: ${tenant}`);
   console.log(`   Usuario: ${user.email}`);
   console.log(`   Asigne granja_ids y piscina_ids antes de operar.\n`);
   await mongoose.disconnect();
 }
 
-// ─── Inicio ───────────────────────────────────────────────
 if (require.main === module) {
   if (process.argv[2] === 'bootstrap') {
     bootstrap().catch(e => { console.error(e.message); process.exitCode = 1; });
@@ -163,14 +148,14 @@ if (require.main === module) {
     connectDB()
       .then(() => {
         const server = app.listen(env.PORT, () => {
-          console.log(`\n🦐 By Fekas Corp. — ERP Camaronera`);
+          console.log(`\nBy Fekas Corp. — ERP Camaronera`);
           console.log(`   API corriendo en puerto ${env.PORT}`);
           console.log(`   Entorno: ${env.NODE_ENV}\n`);
         });
 
         server.on('error', (err) => {
           if (err.code === 'EADDRINUSE') {
-            console.error(`\n❌ Error: El puerto ${env.PORT} ya está en uso.`);
+            console.error(`\nError: El puerto ${env.PORT} ya está en uso.`);
             console.error(`   Cierre el proceso en el puerto ${env.PORT} o configure otro PORT en .env\n`);
           } else {
             console.error('Error en el servidor HTTP:', err.message);

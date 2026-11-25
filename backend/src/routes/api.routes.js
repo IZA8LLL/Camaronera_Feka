@@ -33,7 +33,6 @@ const operationLimit = rateLimit({
 // Todas las rutas /api requieren autenticación
 router.use(authenticate, operationLimit);
 
-// ─── Perfil del usuario ───────────────────────────────────
 router.get('/me', (req, res) => {
   res.json({
     id: String(req.auth.userId),
@@ -44,48 +43,37 @@ router.get('/me', (req, res) => {
   });
 });
 
-// ─── Granjas ──────────────────────────────────────────────
 router.get('/granjas', permit('granjas', 'leer'), listarGranjas);
 
-// ─── Piscinas ─────────────────────────────────────────────
 router.get('/piscinas', permit('piscinas', 'leer'), listarPiscinas);
 
-// ─── Ciclos ───────────────────────────────────────────────
 router.get('/ciclos/siguiente', permit('piscinas', 'leer'), obtenerSiguienteCiclo);
 router.post('/ciclos', permit('ciclos', 'crear'), validate(cycleDto), crearCiclo);
 
-// ─── Muestreos Biométricos ───────────────────────────────
 router.post('/muestreos', permit('muestreos', 'crear'), validate(sampleDto), crearMuestreo);
 
-// ─── Parámetros de Agua ──────────────────────────────────
 router.post('/parametros-agua', permit('agua', 'crear'), validate(waterDto), crearParametrosAgua);
 
-// ─── Alimentación ─────────────────────────────────────────
 router.post('/alimentacion', permit('alimentacion', 'crear'), validate(feedDto), crearAlimentacion);
 
-// ─── Lotes de Inventario ──────────────────────────────────
 router.get('/lotes', (req, res, next) => {
   if (req.auth?.isAdmin || req.auth?.grants?.has('alimentacion:crear') || req.auth?.grants?.has('kardex:leer')) return next();
   return res.status(403).json({ error: 'Permiso denegado' });
 }, listarLotes);
 
-// ─── Kardex ───────────────────────────────────────────────
 router.get('/kardex', permit('kardex', 'leer'), listarKardex);
 
-// ─── Órdenes de Compra ───────────────────────────────────
 router.get('/ordenes', permit('compras', 'leer'), listarOrdenes);
 router.get('/ordenes-compra', permit('compras', 'leer'), listarOrdenes);
 router.post('/ordenes', permit('compras', 'crear'), validate(orderDto), crearOrden);
 router.post('/ordenes-compra', permit('compras', 'crear'), validate(orderDto), crearOrden);
 
-// ─── Proveedores ──────────────────────────────────────────
 router.get('/proveedores', (req, res, next) => {
   if (req.auth?.isAdmin || req.auth?.grants?.has('compras:leer') || req.auth?.grants?.has('proveedores:leer')) return next();
   return res.status(403).json({ error: 'Permiso denegado' });
 }, listarProveedores);
 router.post('/proveedores', permit('proveedores', 'crear'), validate(providerDto), crearProveedor);
 
-// ─── Logout ───────────────────────────────────────────────
 router.post('/logout', logout);
 
 module.exports = router;

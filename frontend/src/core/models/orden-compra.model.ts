@@ -1,6 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Modelo Proveedor y Órdenes de Compra
-   ═══════════════════════════════════════════════════════════ */
 
 export interface Proveedor {
   _id?: string;

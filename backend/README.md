@@ -1,42 +1,41 @@
-# 🦐 By Fekas Corp. — Backend API (ERP Camaronera)
+# By Fekas Corp. — Backend API (ERP Camaronera)
 
-API REST robusta desarrollada en Node.js, Express y Mongoose para la gestión integral de camaroneras, estanques, parámetros fisicoquímicos, muestreos biométricos, alimentación transaccional (Kardex) y compras a proveedores con cifrado AES-256.
+API REST desarrollada en Node.js, Express y Mongoose para piscinas, parámetros de agua, muestreos, alimentación con Kardex y compras.
 
 ---
 
-## 🛡️ Arquitectura de Seguridad Implementada
+## Controles de seguridad implementados
 
-1. **Aislamiento Multitenant (AsyncLocalStorage):**
-   - Plugin global de Mongoose que inyecta automáticamente `{ tenant_id }` en cada query, mutación y agregación.
-2. **Autenticación Robusta:**
+1. **Aislamiento por tenant (AsyncLocalStorage):**
+   - Los modelos operativos con `tenantScope` filtran por tenant y asignaciones. Las consultas directas a colecciones requieren filtros explícitos.
+2. **Autenticación:**
    - Hashing de contraseñas con **Argon2id** (memoria 64MB, 3 iteraciones, paralelismo 1).
    - Tokens JWT: Access Token de corta duración (15 minutos) y Refresh Token seguro rotativo en Cookie HTTP-Only (`__Host-` / `SameSite=Strict`).
 3. **Cifrado en Reposo de Datos Sensibles:**
    - Cifrado simétrico autenticado **AES-256-GCM** para RUCs de proveedores y cuentas bancarias.
-4. **Prevención de Inyecciones NoSQL:**
-   - Sanitización contra operadores maliciosos (`$where`, `$expr`, regex masivos).
-5. **Mitigación de Bots y Abusos:**
-   - Integración con **Cloudflare Turnstile** para inicio de sesión seguro.
-   - Rate limiting por IP y hash SHA-256 de usuario.
+4. **Validación de entradas:**
+   - DTOs validados con Zod, sanitización de claves MongoDB y bloqueo de `$where` en operaciones Mongoose.
+5. **Control de acceso y tasa:**
+   - Permisos RBAC por ruta, comprobación de granja/piscina/ciclo y límites de peticiones. El backend verifica Turnstile fuera del entorno de desarrollo; la integración de producción del frontend está pendiente.
 6. **Integridad de Transacciones ACID:**
    - Descuento automático de inventario Kardex y registro de consumo de alimento mediante sesiones de transacción en MongoDB.
 
 ---
 
-## 🚀 Requisitos Previos
+## Requisitos previos
 
-- Node.js 18.0 o superior
+- Node.js 22
 - Base de datos en MongoDB Atlas (o réplica local) denominada `by_fekas_corp_db`
 
 ---
 
-## ⚙️ Configuración (.env)
+## Configuración (.env)
 
 Cree `backend/.env` a partir de `backend/.env.example` y sustituya todos los valores de ejemplo por valores propios. La clave JWT debe tener al menos 32 caracteres aleatorios y la clave AES debe contener 32 bytes codificados en Base64. El archivo `.env` está excluido de Git.
 
 ---
 
-## 📦 Instalación y Ejecución
+## Instalación y ejecución
 
 ```bash
 # 1. Instalar dependencias
@@ -54,7 +53,7 @@ npm start
 
 ---
 
-## 📡 Endpoints de la API
+## Endpoints de la API
 
 ### Autenticación (`/auth`)
 - `POST /auth/login`: Autenticación con tenant, email, password y token de Turnstile. Retorna access_token y cookie de refresh.
@@ -64,7 +63,7 @@ npm start
 - `GET /api/me`: Información del usuario en sesión, permisos RBAC y asignación de granjas.
 - `POST /api/logout`: Cierre de sesión e invalidación de tokens.
 - `GET /api/granjas`: Granjas asignadas al usuario (`granjas:leer`).
-- `GET /api/piscinas`: Lectura de estanques y métricas en tiempo real.
+- `GET /api/piscinas`: Lectura de estanques y últimas mediciones disponibles.
 - `GET /api/ciclos/siguiente`: Consulta del siguiente código sin crear documentos (`piscinas:leer`).
 - `POST /api/ciclos`: Creación explícita de un ciclo activo (`ciclos:crear`).
 - `POST /api/muestreos`: Registro de biometría (peso, talla, cálculo de biomasa).
@@ -77,5 +76,9 @@ npm start
 
 ---
 
-## 🧪 Health Check
+## Estado del servicio
 - `GET /health`: Estado del servicio y tiempo de actividad.
+
+## Verificación
+
+`npm test` ejecuta las pruebas de validación y autorización con MongoDB temporal. La CI comprueba sintaxis JavaScript, pruebas y auditoría de dependencias de ejecución. En el backend la auditoría bloquea alertas críticas; en el frontend bloquea alertas altas o críticas. La CI del frontend compila Angular y ejecuta Playwright en Chromium.

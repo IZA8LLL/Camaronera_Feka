@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   Form Muestreo Page — Formulario de muestreo biométrico
-   Selección mediante menús desplegables (Granja, Piscina, Ciclo)
-   ═══════════════════════════════════════════════════════════ */
 import {
   crearMuestreo,
   crearCiclo,
