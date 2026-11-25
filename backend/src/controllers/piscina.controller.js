@@ -24,7 +24,7 @@ async function listarPiscinas(req, res, next) {
         Agua.findOne({ piscina_id: p._id }).sort({ fecha: -1 })
           .select('oxigeno_mg_l salinidad_ppt ph temperatura_c amonio_mg_l alerta fecha').lean(),
         Ciclo.findOne({ piscina_id: p._id, estado: 'activo' })
-          .select('biomasa_estimada_kg codigo especie fecha_inicio').lean(),
+          .select('biomasa_estimada_kg codigo especie fecha_inicio updated_at').lean(),
         Consumo.findOne({ piscina_id: p._id }).sort({ fecha: -1 })
           .select('fca cantidad_kg fecha').lean(),
         mongoose.connection.db.collection('granjas_camaroneras').findOne(
@@ -55,8 +55,10 @@ async function listarPiscinas(req, res, next) {
         alerta: agua?.alerta || false,
         ultima_lectura_agua: agua?.fecha || null,
         biomasa_kg: ciclo?.biomasa_estimada_kg?.toString() || null,
+        biomasa_actualizada_at: ciclo?.updated_at || null,
         fca: consumo?.fca?.toString() || null,
-        ultimo_consumo_kg: consumo?.cantidad_kg?.toString() || null
+        ultimo_consumo_kg: consumo?.cantidad_kg?.toString() || null,
+        fecha_ultimo_consumo: consumo?.fecha || null
       };
     }));
 

@@ -275,7 +275,7 @@ export async function initFormAgua() {
     }
   });
 
-  // Preview de alertas en tiempo real
+  // Vista previa local de alertas mientras se completa el formulario.
   const inputs = ['a-oxigeno', 'a-ph', 'a-amonio'];
   inputs.forEach(inputId => {
     document.getElementById(inputId)?.addEventListener('input', updatePreview);

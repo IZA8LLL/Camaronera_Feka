@@ -42,10 +42,11 @@ tests/erp.spec.ts          Regresión de interfaz con API simulada
 - Acceso con correo y contraseña, errores de autenticación y cierre de sesión.
 - Resumen operativo: piscinas, alertas, biomasa y accesos a registros.
 - Piscinas: últimas mediciones y enlaces a formularios con datos prellenados.
+- Los indicadores muestran unidades, procedencia y fecha disponible. La ausencia de una lectura se presenta explícitamente; la biomasa se identifica como estimación del ciclo.
 - Muestreo, agua y alimentación: formularios conectados a los servicios existentes.
 - Compras: consulta de órdenes y proveedores, y registro de proveedores.
 
-Las mediciones se consultan al entrar en las pantallas; no hay actualización por streaming. La pantalla de compras no incorpora creación de órdenes. El rediseño no añade módulos de negocio.
+Las mediciones se consultan al entrar en las pantallas; no hay actualización por streaming. La pantalla de acceso no muestra cifras de producción ficticias. La pantalla de compras no incorpora creación de órdenes.
 
 ## Verificación
 

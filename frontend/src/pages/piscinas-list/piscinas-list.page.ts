@@ -4,14 +4,15 @@
    ═══════════════════════════════════════════════════════════ */
 import { fetchPiscinas } from '../../services/piscina.service';
 import type { PiscinaRow } from '../../core/models/index';
+import { formatMeasurementDate } from '../../core/measurement';
 import { escapeHtml, pageHeader } from '../../shared/ui';
 
 export function renderPiscinasList(): string {
   return `
     ${pageHeader('Piscinas y estanques', 'Revisa las últimas mediciones y registra el trabajo de cada piscina.', 'Producción / Piscinas')}
     <div id="piscinas-container">
-      <div class="loading-overlay">
-        <div class="spinner spinner--lg"></div>
+      <div class="loading-overlay" role="status">
+        <div class="spinner spinner--lg" aria-hidden="true"></div>
         <span>Cargando piscinas…</span>
       </div>
     </div>
@@ -27,7 +28,8 @@ export async function initPiscinasList() {
     if (pools.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <p class="empty-state__text">No hay piscinas registradas en su cuenta</p>
+          <p class="empty-state__title">Sin piscinas disponibles</p>
+          <p class="empty-state__text">No hay piscinas asignadas a tu cuenta.</p>
         </div>
       `;
       return;
@@ -37,7 +39,8 @@ export async function initPiscinasList() {
   } catch {
     container.innerHTML = `
       <div class="empty-state">
-        <p class="empty-state__text">Error al cargar piscinas. Verifique la conexión con el servidor.</p>
+        <p class="empty-state__title">No se pudieron cargar las piscinas</p>
+        <p class="empty-state__text">Verifica la conexión y actualiza la página.</p>
       </div>
     `;
   }
@@ -75,15 +78,17 @@ function renderPoolCard(p: PiscinaRow): string {
       <div class="pool-card__header">
         <div>
           <h2 class="pool-card__code">${escapeHtml(p.codigo)}</h2>
-          <div style="font-size:var(--font-xs); color:var(--text-muted); margin-top:2px;">
+          <div class="pool-card__cycle">
             ${escapeHtml(p.especie || 'Sin ciclo activo')} ${p.ciclo_codigo ? `· ${escapeHtml(p.ciclo_codigo)}` : ''}
           </div>
         </div>
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
           ${statusBadge}
-          ${p.alerta ? '<span class="badge badge--danger">Alerta</span>' : ''}
+          ${p.alerta ? '<span class="badge badge--danger">Alerta</span>' : !p.ultima_lectura_agua ? '<span class="badge badge--neutral">Sin lectura</span>' : ''}
         </div>
       </div>
+
+      <p class="pool-card__source">Última lectura de agua: ${escapeHtml(formatMeasurementDate(p.ultima_lectura_agua))}<br>Fuente: registro de parámetros de agua</p>
 
       <div class="pool-card__metrics">
         <div class="pool-metric">
@@ -105,14 +110,17 @@ function renderPoolCard(p: PiscinaRow): string {
         <div class="pool-metric">
           <div class="pool-metric__label">Biomasa (kg)</div>
           <div class="pool-metric__value">${p.biomasa_kg ? parseFloat(p.biomasa_kg).toLocaleString('es-EC') : '—'}</div>
+          <div class="pool-metric__source">${p.biomasa_kg == null ? 'Sin estimación registrada' : `Estimación de ciclo · ${escapeHtml(formatMeasurementDate(p.biomasa_actualizada_at, 'Fecha no disponible'))}`}</div>
         </div>
         <div class="pool-metric">
           <div class="pool-metric__label">FCA</div>
           <div class="pool-metric__value">${escapeHtml(p.fca ?? '—')}</div>
+          <div class="pool-metric__source">${p.fca == null ? 'Sin FCA registrado' : `Última alimentación · ${escapeHtml(formatMeasurementDate(p.fecha_ultimo_consumo, 'Fecha no disponible'))}`}</div>
         </div>
         <div class="pool-metric">
           <div class="pool-metric__label">Área (ha)</div>
           <div class="pool-metric__value">${escapeHtml(p.area_ha ?? '—')}</div>
+          <div class="pool-metric__source">Fuente: ficha de piscina</div>
         </div>
         <div class="pool-metric">
           <div class="pool-metric__label">Amonio (mg/L)</div>

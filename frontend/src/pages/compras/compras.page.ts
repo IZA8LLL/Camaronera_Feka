@@ -135,7 +135,7 @@ export async function initCompras() {
         return;
       }
       containerProv.innerHTML = `
-        <div class="table-wrapper">
+        <div class="table-wrapper" tabindex="0" role="region" aria-label="Desplazar tabla de proveedores">
           <table class="table" aria-label="Directorio de proveedores">
             <thead>
               <tr>
@@ -175,7 +175,7 @@ export async function initCompras() {
         return;
       }
       containerOrd.innerHTML = `
-        <div class="table-wrapper">
+        <div class="table-wrapper" tabindex="0" role="region" aria-label="Desplazar tabla de órdenes de compra">
           <table class="table" aria-label="Órdenes de compra">
             <thead>
               <tr>

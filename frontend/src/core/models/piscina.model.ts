@@ -24,6 +24,8 @@ export interface PiscinaRow {
   alerta: boolean;
   ultima_lectura_agua: string | null;
   biomasa_kg: string | null;
+  biomasa_actualizada_at: string | null;
   fca: string | null;
   ultimo_consumo_kg: string | null;
+  fecha_ultimo_consumo: string | null;
 }

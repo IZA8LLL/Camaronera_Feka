@@ -14,7 +14,6 @@ export function renderLogin(): string {
         <div class="login-story__bg" aria-hidden="true">
           <div class="login-story__image"></div>
           <div class="login-story__scrim"></div>
-          <div class="login-story__glow"></div>
         </div>
 
         <div class="sidebar-brand">
@@ -26,49 +25,14 @@ export function renderLogin(): string {
         </div>
 
         <div class="login-story__content">
-          <div class="story-status-pill">
-            <span class="status-pulse-dot"></span>
-            <span>Monitoreo satelital y biometría en tiempo real</span>
-          </div>
-
-          <p class="eyebrow story-eyebrow">Una visión completa de tu camaronera</p>
+          <p class="eyebrow story-eyebrow">ERP para granjas camaroneras</p>
           <h2 class="story-headline">Cada piscina.<br>Cada ciclo.<br><span class="story-headline__accent">Todo conectado.</span></h2>
-          <p class="login-story__description">Producción, calidad del agua y abastecimiento en un mismo espacio de trabajo unificado y predictivo.</p>
-
-          <div class="story-telemetry-grid">
-            <div class="telemetry-card">
-              <div class="telemetry-card__header">
-                <span class="telemetry-card__dot"></span>
-                <span class="telemetry-card__tag">Calidad del Agua</span>
-              </div>
-              <div class="telemetry-card__value">6.8 <small>mg/L</small></div>
-              <div class="telemetry-card__label">Oxígeno disuelto prom.</div>
-            </div>
-
-            <div class="telemetry-card">
-              <div class="telemetry-card__header">
-                <span class="telemetry-card__dot telemetry-card__dot--success"></span>
-                <span class="telemetry-card__tag">Operación</span>
-              </div>
-              <div class="telemetry-card__value">100%</div>
-              <div class="telemetry-card__label">Piscinas monitoreadas</div>
-            </div>
-
-            <div class="telemetry-card">
-              <div class="telemetry-card__header">
-                <span class="telemetry-card__dot telemetry-card__dot--warning"></span>
-                <span class="telemetry-card__tag">Alimentación</span>
-              </div>
-              <div class="telemetry-card__value">1.35 <small>FCA</small></div>
-              <div class="telemetry-card__label">Eficiencia de biomasa</div>
-            </div>
-          </div>
-
-          <svg class="pond-art" viewBox="0 0 460 180" fill="none" aria-hidden="true">
-            <path d="M0 170H460M0 10H460" stroke="currentColor" opacity=".25"/>
-            <g stroke="currentColor"><rect x="10" y="30" width="130" height="120" rx="20"/><rect x="165" y="30" width="130" height="120" rx="20"/><rect x="320" y="30" width="130" height="120" rx="20"/></g>
-            <g stroke="currentColor" opacity=".4"><path d="M25 80c30-25 55 25 100 0m-100 15c30-25 55 25 100 0M180 80c30-25 55 25 100 0m-100 15c30-25 55 25 100 0M335 80c30-25 55 25 100 0m-100 15c30-25 55 25 100 0"/></g>
-          </svg>
+          <p class="login-story__description">Consulta el estado de tus piscinas y registra agua, muestreos y alimentación. Compras y proveedores tienen su propio espacio de trabajo.</p>
+          <ul class="login-story__features">
+            <li>Piscinas y ciclos de cultivo</li>
+            <li>Registros de campo con fecha y unidad</li>
+            <li>Inventario y abastecimiento</li>
+          </ul>
         </div>
 
         <p class="login-story__footer">By Fekas Corp. · Del campo a la gestión · Plataforma Acuícola</p>

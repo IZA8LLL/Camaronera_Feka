@@ -4,8 +4,8 @@ import { test, expect, type Page } from '@playwright/test';
 const ids = { piscina: '111111111111111111111111', granja: '222222222222222222222222', ciclo: '333333333333333333333333', lote: '444444444444444444444444' };
 const user = { id: '555555555555555555555555', nombre: 'María Campos', email: 'maria@example.test', tenant_id: '666666666666666666666666' };
 const pools = [
-  { id: ids.piscina, granja_id: ids.granja, ciclo_id: ids.ciclo, codigo: 'P-01', estado: 'activa', especie: 'Camarón blanco', ciclo_codigo: 'C-2026-01', area_ha: '4.5', oxigeno_mg_l: '6.5', ph: '7.8', salinidad_ppt: '25', temperatura_c: '28', amonio_mg_l: '0.3', biomasa_kg: '12500', fca: '1.4', alerta: false },
-  { id: '777777777777777777777777', granja_id: ids.granja, ciclo_id: ids.ciclo, codigo: 'P-02', estado: 'activa', especie: 'Camarón blanco', area_ha: '3.2', oxigeno_mg_l: '3.5', ph: '7.2', biomasa_kg: '8200', fca: '1.6', alerta: true },
+  { id: ids.piscina, granja_id: ids.granja, ciclo_id: ids.ciclo, codigo: 'P-01', estado: 'activa', especie: 'Camarón blanco', ciclo_codigo: 'C-2026-01', area_ha: '4.5', oxigeno_mg_l: '6.5', ph: '7.8', salinidad_ppt: '25', temperatura_c: '28', amonio_mg_l: '0.3', biomasa_kg: '12500', fca: '1.4', alerta: false, ultima_lectura_agua: '2026-11-25T10:30:00Z', biomasa_actualizada_at: '2026-11-24T09:00:00Z', fecha_ultimo_consumo: '2026-11-25T08:00:00Z' },
+  { id: '777777777777777777777777', granja_id: ids.granja, ciclo_id: ids.ciclo, codigo: 'P-02', estado: 'activa', especie: 'Camarón blanco', area_ha: '3.2', oxigeno_mg_l: '3.5', ph: '7.2', biomasa_kg: '8200', fca: '1.6', alerta: true, ultima_lectura_agua: '2026-11-25T11:00:00Z', biomasa_actualizada_at: '2026-11-24T09:00:00Z', fecha_ultimo_consumo: '2026-11-25T08:00:00Z' },
   { id: '888888888888888888888888', granja_id: ids.granja, ciclo_id: null, codigo: 'P-03', estado: 'mantenimiento', area_ha: '5', alerta: false }
 ];
 
@@ -114,6 +114,7 @@ test('acceso, error recuperable y cierre de sesión', async ({ page }, info) => 
   await mockApi(page, false);
   await page.goto('/#/login');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bienvenido de nuevo.');
+  await expect(page.getByText(/Monitoreo satelital|predictivo|6\.8 mg\/L|100%/)).toHaveCount(0);
   await noOverflow(page);
   await page.screenshot({ path: info.outputPath('login.png'), fullPage: true });
   await page.getByLabel('Correo electrónico').fill('maria@example.test');
@@ -138,12 +139,37 @@ test('dashboard conserva indicadores, alertas y enlaces', async ({ page }, info)
   await expect(page.locator('#stat-active-pools')).toHaveText('2');
   await expect(page.locator('#stat-alerts')).toHaveText('1');
   await expect(page.locator('#stat-biomass')).toHaveText((20700).toLocaleString('es-EC', { maximumFractionDigits: 0 }));
+  await expect(page.locator('#dashboard-status')).toContainText('Última lectura de agua:');
+  await expect(page.locator('#stat-biomass-source')).toContainText('estimación de ciclos activos');
   await expect(page.locator('.alert-tile')).toHaveCount(1);
   await expect(page.locator('.table tbody tr')).toHaveCount(3);
+  await expect(page.locator('.table th').last()).toHaveText('Última lectura de agua');
   await noOverflow(page);
   await page.screenshot({ path: info.outputPath('dashboard.png'), fullPage: true });
   await page.locator('.quick-action').filter({ hasText: 'Calidad del agua' }).click();
   await expect(page.locator('#agua-form')).toBeVisible();
+});
+
+test('mediciones muestran unidad, fecha y origen con teclado y en tableta', async ({ page }) => {
+  await mockApi(page);
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.goto('/#/dashboard');
+  const tableRegion = page.getByRole('region', { name: 'Desplazar tabla de estado de piscinas' });
+  await tableRegion.focus();
+  await expect(tableRegion).toBeFocused();
+  await expect(page.locator('#dashboard-status')).toContainText('2026');
+  await page.getByRole('button', { name: 'Modo oscuro' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  const longCode = `PISCINA-${'A'.repeat(64)}`;
+  await page.route('**/api/piscinas', route => route.fulfill({ json: [{ ...pools[0], codigo: longCode }] }));
+  await page.goto('/#/piscinas');
+  await expect(page.locator('.pool-card__code')).toHaveText(longCode);
+  await expect(page.locator('.pool-card').first()).toContainText('Fuente: registro de parámetros de agua');
+  await expect(page.locator('.pool-card').first()).toContainText('Última alimentación');
+  await expect(page.locator('.pool-card').first()).toContainText('O₂ (mg/L)');
+  await noOverflow(page);
+  await page.setViewportSize({ width: 320, height: 740 });
+  await noOverflow(page);
 });
 
 test('menú móvil accesible y navegación entre todos los módulos', async ({ page }, info) => {
@@ -262,9 +288,12 @@ test('datos vacíos, errores y texto dinámico seguro', async ({ page }) => {
   await page.route('**/api/piscinas', route => route.fulfill({ json: [] }));
   await page.goto('/#/dashboard');
   await expect(page.getByText('No hay piscinas registradas', { exact: true })).toBeVisible();
+  await page.goto('/#/piscinas');
+  await expect(page.getByText('No hay piscinas asignadas a tu cuenta.')).toBeVisible();
   await page.route('**/api/piscinas', route => route.fulfill({ status: 500, json: { error: 'Error de prueba' } }));
-  await page.reload();
+  await page.goto('/#/dashboard');
   await expect(page.getByText('Sin datos disponibles.')).toBeVisible();
+  await expect(page.locator('#dashboard-status')).toContainText('No se pudieron cargar');
   await page.goto('/#/form-agua?codigo=' + encodeURIComponent('<img src=x onerror=alert(1)>') + '&granja=' + encodeURIComponent('" autofocus onfocus="alert(1)'));
   await expect(page.getByRole('heading', { level: 1 })).toContainText('<img src=x onerror=alert(1)>');
   await expect(page.locator('#router-outlet img')).toHaveCount(0);

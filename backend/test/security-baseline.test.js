@@ -166,6 +166,13 @@ test('fase 1: autorización con MongoDB temporal y datos sintéticos', async t =
   await t.test('operador puede registrar agua con IDs coherentes', () => {
     assert.equal(validWater.status, 201);
   });
+  const poolsAfterReading = await request(0, '/api/piscinas');
+  await t.test('la consulta de piscinas identifica la fecha de los datos operativos', () => {
+    const pool = poolsAfterReading.data.find(row => row.id === str(pools[0]));
+    assert.equal(new Date(pool.ultima_lectura_agua).toISOString(), fecha);
+    assert.equal(pool.biomasa_actualizada_at, null);
+    assert.equal(pool.fecha_ultimo_consumo, null);
+  });
   const unauthenticated = await fetch(base + '/api/granjas');
   await t.test('sin token recibe 401', () => {
     assert.equal(unauthenticated.status, 401);
