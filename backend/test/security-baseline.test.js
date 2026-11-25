@@ -10,7 +10,7 @@ const { startIsolatedMongo } = require('../test-support/isolated-mongo');
 const objectId = () => new mongoose.Types.ObjectId();
 const str = value => String(value);
 
-test('fase 0: matriz de autorización con MongoDB temporal y datos sintéticos', async t => {
+test('fase 1: autorización con MongoDB temporal y datos sintéticos', async t => {
   const mongo = await startIsolatedMongo();
   t.after(() => mongo.stop());
 
@@ -29,9 +29,9 @@ test('fase 0: matriz de autorización con MongoDB temporal y datos sintéticos',
   const farms = [objectId(), objectId(), objectId(), objectId()];
   const pools = farms.map(() => objectId());
   const cycles = farms.map(() => objectId());
-  const users = [objectId(), objectId(), objectId(), objectId()];
-  const roles = [objectId(), objectId(), objectId()];
-  const permissions = ['piscinas:leer', 'muestreos:crear', 'agua:crear', 'alimentacion:crear'];
+  const users = [objectId(), objectId(), objectId(), objectId(), objectId()];
+  const roles = [objectId(), objectId(), objectId(), objectId()];
+  const permissions = ['granjas:leer', 'piscinas:leer', 'ciclos:crear', 'muestreos:crear', 'agua:crear', 'alimentacion:crear'];
   const permissionIds = permissions.map(() => objectId());
   const tenants = [tenantA, tenantA, tenantB, tenantB];
 
@@ -43,7 +43,7 @@ test('fase 0: matriz de autorización con MongoDB temporal y datos sintéticos',
   })));
   await db.collection('ciclos_cultivo').insertMany(cycles.map((id, i) => ({
     _id: id, tenant_id: tenants[i], granja_id: farms[i], piscina_id: pools[i],
-    codigo: `CIC-2026-P0${i + 1}`, estado: 'activo'
+    codigo: `CIC-2026-P0${i + 1}`, estado: i === 1 ? 'cerrado' : 'activo'
   })));
   await db.collection('permisos').insertMany(permissionIds.map((id, i) => ({
     _id: id, tenant_id: tenantA, recurso: permissions[i].split(':')[0],
@@ -52,14 +52,16 @@ test('fase 0: matriz de autorización con MongoDB temporal y datos sintéticos',
   const tenantBPermission = await db.collection('permisos').findOne({ tenant_id: tenantB });
   await db.collection('roles').insertMany([
     { _id: roles[0], tenant_id: tenantA, codigo: 'operador', nombre: 'Operador', activo: true, permiso_ids: permissionIds },
-    { _id: roles[1], tenant_id: tenantA, codigo: 'lector', nombre: 'Lector', activo: true, permiso_ids: [permissionIds[0]] },
-    { _id: roles[2], tenant_id: tenantB, codigo: 'lector', nombre: 'Lector B', activo: true, permiso_ids: [tenantBPermission._id] }
+    { _id: roles[1], tenant_id: tenantA, codigo: 'lector', nombre: 'Lector', activo: true, permiso_ids: [permissionIds[0], permissionIds[1]] },
+    { _id: roles[2], tenant_id: tenantB, codigo: 'lector', nombre: 'Lector B', activo: true, permiso_ids: [tenantBPermission._id] },
+    { _id: roles[3], tenant_id: tenantA, codigo: 'administrador', nombre: 'Administrador A', activo: true, permiso_ids: [] }
   ]);
   await db.collection('usuarios').insertMany([
     { _id: users[0], tenant_id: tenantA, email: 'operador@ensayo.invalid', nombre: 'Operador', activo: true, rol_ids: [roles[0]], granja_ids: farms.slice(0, 2), piscina_ids: pools.slice(0, 2) },
     { _id: users[1], tenant_id: tenantA, email: 'lector@ensayo.invalid', nombre: 'Lector', activo: true, rol_ids: [roles[1]], granja_ids: [farms[0]], piscina_ids: [pools[0]] },
     { _id: users[2], tenant_id: tenantA, email: 'sin-asignacion@ensayo.invalid', nombre: 'Sin asignación', activo: true, rol_ids: [roles[1]], granja_ids: [], piscina_ids: [] },
-    { _id: users[3], tenant_id: tenantB, email: 'otro-tenant@ensayo.invalid', nombre: 'Otro tenant', activo: true, rol_ids: [roles[2]], granja_ids: [farms[2]], piscina_ids: [pools[2]] }
+    { _id: users[3], tenant_id: tenantB, email: 'otro-tenant@ensayo.invalid', nombre: 'Otro tenant', activo: true, rol_ids: [roles[2]], granja_ids: [farms[2]], piscina_ids: [pools[2]] },
+    { _id: users[4], tenant_id: tenantA, email: 'admin@ensayo.invalid', nombre: 'Administrador', activo: true, rol_ids: [roles[3]], granja_ids: [], piscina_ids: [] }
   ]);
   const lot = objectId();
   await db.collection('lotes_inventario').insertOne({
@@ -98,25 +100,32 @@ test('fase 0: matriz de autorización con MongoDB temporal y datos sintéticos',
     assert.deepEqual(farmsOperator.data.map(x => x.id).sort(), farms.slice(0, 2).map(str).sort());
   });
   const farmsEmpty = await request(2, '/api/granjas');
-  await t.test('usuario sin asignación no recibe granjas', { todo: 'S-01, fase 1' }, () => {
+  await t.test('usuario sin asignación no recibe granjas', () => {
     assert.deepEqual(farmsEmpty.data, []);
   });
   const poolsReader = await request(1, '/api/piscinas');
-  await t.test('lector solo recibe su piscina asignada', { todo: 'S-01, fase 1' }, () => {
+  await t.test('lector solo recibe su piscina asignada', () => {
     assert.deepEqual(poolsReader.data.map(x => x.id), [str(pools[0])]);
   });
   const poolsTenantB = await request(3, '/api/piscinas');
-  await t.test('un tenant solo recibe sus piscinas', { todo: 'S-01, fase 1' }, () => {
+  await t.test('un tenant solo recibe sus piscinas', () => {
     assert.equal(poolsTenantB.status, 200);
     assert.deepEqual(poolsTenantB.data.map(x => x.id), [str(pools[2])]);
+  });
+  const adminFarms = await request(4, '/api/granjas');
+  const adminPools = await request(4, '/api/piscinas');
+  await t.test('administrador sin asignaciones ve solo su tenant', () => {
+    assert.deepEqual(adminFarms.data.map(x => x.id).sort(), farms.slice(0, 2).map(str).sort());
+    assert.deepEqual(adminPools.data.map(x => x.id).sort(), pools.slice(0, 2).map(str).sort());
   });
 
   const cycleCountBefore = await db.collection('ciclos_cultivo').countDocuments();
   const next = await request(0, `/api/ciclos/siguiente?granja_id=${farms[0]}&piscina_id=${pools[0]}&fecha=2027-01-10`);
   const cycleCountAfter = await db.collection('ciclos_cultivo').countDocuments();
-  await t.test('GET de siguiente ciclo no escribe', { todo: 'S-02, fase 1' }, () => {
+  await t.test('GET de siguiente ciclo no escribe', () => {
     assert.equal(next.status, 200);
     assert.equal(cycleCountAfter, cycleCountBefore);
+    assert.deepEqual(next.data.ciclos_existentes.map(x => x.id), [str(cycles[0])]);
   });
 
   const fecha = '2026-11-24T12:00:00.000Z';
@@ -124,7 +133,7 @@ test('fase 0: matriz de autorización con MongoDB temporal y datos sintéticos',
   const water = await request(0, '/api/parametros-agua', {
     ...common, oxigeno_mg_l: 5, salinidad_ppt: 28, ph: 7.8, temperatura_c: 29, amonio_mg_l: 0.2
   });
-  await t.test('agua rechaza ciclo de otra piscina y no escribe', { todo: 'S-03, fase 1' }, async () => {
+  await t.test('agua rechaza ciclo de otra piscina y no escribe', async () => {
     assert.equal(water.status, 403);
     assert.equal(await db.collection('parametros_agua').countDocuments(), 0);
   });
@@ -132,14 +141,14 @@ test('fase 0: matriz de autorización con MongoDB temporal y datos sintéticos',
     ...common, peso_promedio_g: 14, talla_promedio_cm: 10,
     muestra_individuos: 30, biomasa_estimada_kg: 100
   });
-  await t.test('muestreo rechaza ciclo de otra piscina y no escribe', { todo: 'S-03, fase 1' }, async () => {
+  await t.test('muestreo rechaza ciclo de otra piscina y no escribe', async () => {
     assert.equal(sample.status, 403);
     assert.equal(await db.collection('muestreos_biometricos').countDocuments(), 0);
   });
   const feed = await request(0, '/api/alimentacion', {
     ...common, lote_id: str(lot), cantidad_kg: 5
   });
-  await t.test('alimentación rechaza ciclo incoherente sin consumir inventario', { todo: 'S-03, fase 1' }, async () => {
+  await t.test('alimentación rechaza ciclo incoherente sin consumir inventario', async () => {
     assert.equal(feed.status, 403);
     assert.equal(await db.collection('consumo_alimento_diario').countDocuments(), 0);
     assert.equal((await db.collection('lotes_inventario').findOne({ _id: lot })).cantidad_actual.toString(), '100');
@@ -162,7 +171,42 @@ test('fase 0: matriz de autorización con MongoDB temporal y datos sintéticos',
     assert.equal(unauthenticated.status, 401);
   });
 
-  console.log('FASE_0_OBSERVADO ' + JSON.stringify({
+  const wrongTenant = await request(0, `/api/ciclos/siguiente?granja_id=${farms[2]}&piscina_id=${pools[2]}`);
+  await t.test('consulta de ciclo de otro tenant recibe 403', () => {
+    assert.equal(wrongTenant.status, 403);
+  });
+  const wrongPair = await request(0, '/api/ciclos', {
+    granja_id: str(farms[0]), piscina_id: str(pools[1]), fecha_inicio: fecha
+  });
+  await t.test('creación rechaza piscina de otra granja', () => {
+    assert.equal(wrongPair.status, 403);
+  });
+  const readerCreate = await request(1, '/api/ciclos', {
+    granja_id: str(farms[0]), piscina_id: str(pools[0]), fecha_inicio: fecha
+  });
+  await t.test('lector sin permiso de ciclos no puede crearlos', () => {
+    assert.equal(readerCreate.status, 403);
+  });
+  const createPayload = { granja_id: str(farms[1]), piscina_id: str(pools[1]), fecha_inicio: fecha };
+  const created = await request(0, '/api/ciclos', createPayload);
+  await t.test('operador crea explícitamente un ciclo válido', async () => {
+    assert.equal(created.status, 201);
+    const stored = await db.collection('ciclos_cultivo').findOne({ _id: new mongoose.Types.ObjectId(created.data.id) });
+    assert.equal(str(stored.granja_id), str(farms[1]));
+    assert.equal(str(stored.piscina_id), str(pools[1]));
+    assert.equal(stored.estado, 'activo');
+  });
+  const duplicate = await request(0, '/api/ciclos', createPayload);
+  await t.test('no se crea un segundo ciclo activo en la misma piscina', () => {
+    assert.equal(duplicate.status, 409);
+  });
+  await t.test('índices únicos protegen código y ciclo activo', async () => {
+    const indexes = await db.collection('ciclos_cultivo').listIndexes().toArray();
+    assert.equal(indexes.find(x => x.name === 'uniq_ciclo_codigo_tenant')?.unique, true);
+    assert.equal(indexes.find(x => x.name === 'uniq_ciclo_activo_piscina')?.unique, true);
+  });
+
+  console.log('FASE_1_OBSERVADO ' + JSON.stringify({
     granjas_sin_asignacion: farmsEmpty.data.length,
     piscinas_lector: poolsReader.data.length,
     piscinas_tenant_b: poolsTenantB.data.length,

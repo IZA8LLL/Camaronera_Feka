@@ -66,6 +66,12 @@ const feedDto = z.object({
   observacion: z.string().max(1000).optional()
 }).strict();
 
+const cycleDto = z.object({
+  granja_id: oid(),
+  piscina_id: oid(),
+  fecha_inicio: z.string().datetime()
+}).strict();
+
 const providerDto = z.object({
   codigo: z.string().min(1).max(40),
   nombre: z.string().min(1).max(160),
@@ -96,6 +102,6 @@ const orderDto = z.object({
 
 module.exports = {
   validate,
-  loginDto, sampleDto, waterDto, feedDto,
+  loginDto, sampleDto, waterDto, feedDto, cycleDto,
   providerDto, orderDto
 };

@@ -50,7 +50,7 @@ El backend ya usa Argon2id para contraseñas, cookies de actualización `HttpOnl
 
 **Criterio de salida:** el entorno de ensayo reproduce los casos de acceso autorizado y denegado sin depender de la base de producción.
 
-**Ejecución:** completada. La matriz, los resultados observados y las instrucciones de reproducción se encuentran en [FASE_0_BASE_DE_VERIFICACION.md](FASE_0_BASE_DE_VERIFICACION.md). Los siete casos de seguridad pendientes están marcados `TODO` hasta la fase 1.
+**Ejecución:** completada. La matriz inicial y las instrucciones de reproducción se encuentran en [FASE_0_BASE_DE_VERIFICACION.md](FASE_0_BASE_DE_VERIFICACION.md). Los siete casos inicialmente pendientes se corrigieron en la fase 1.
 
 ### Fase 1. Corrección de acceso y consistencia de datos — P0
 
@@ -60,6 +60,8 @@ El backend ya usa Argon2id para contraseñas, cookies de actualización `HttpOnl
 4. Incorporar pruebas de autorización con combinaciones de IDs válidos pero pertenecientes a otra granja, piscina o tenant.
 
 **Criterio de salida:** ningún usuario recibe objetos ajenos a su ámbito; `GET /api/ciclos/siguiente` no crea documentos; una combinación incoherente de IDs no produce registros ni movimientos de inventario. No avanzar al despliegue con estos casos pendientes.
+
+**Ejecución:** implementada y verificada con la base temporal. Consulte [FASE_1_ACCESO_Y_CONSISTENCIA.md](FASE_1_ACCESO_Y_CONSISTENCIA.md) antes de aplicar los índices únicos a una base existente.
 
 ### Fase 2. Sesión, configuración y dependencias — P1
 

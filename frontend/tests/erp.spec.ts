@@ -212,6 +212,31 @@ for (const operation of operations) {
   });
 }
 
+test('crear un ciclo exige una acción explícita', async ({ page }) => {
+  await mockApi(page);
+  let creations = 0;
+  await page.route('**/api/ciclos**', async route => {
+    if (route.request().method() === 'POST') {
+      creations += 1;
+      await route.fulfill({ status: 201, json: { id: ids.ciclo, codigo: 'CIC-2026-P01' } });
+      return;
+    }
+    await route.fulfill({ json: {
+      year: 2026, total_registrados: creations, siguiente_codigo: 'CIC-2026-P01', siguiente_id: null,
+      ciclos_existentes: creations ? [{ id: ids.ciclo, codigo: 'CIC-2026-P01', estado: 'activo', piscina_id: ids.piscina, granja_id: ids.granja }] : []
+    } });
+  });
+  await page.goto('/#/piscinas');
+  await page.locator('.pool-card').first().getByRole('link', { name: 'Agua', exact: true }).click();
+  await expect(page.locator('#a-ciclo')).toHaveValue('');
+  await expect(page.locator('#a-crear-ciclo')).toBeVisible();
+  expect(creations).toBe(0);
+  await page.locator('#a-crear-ciclo').click();
+  await expect(page.locator('#a-ciclo')).toHaveValue(ids.ciclo);
+  await expect(page.locator('#a-crear-ciclo')).toBeHidden();
+  expect(creations).toBe(1);
+});
+
 test('compras mantiene el formulario de proveedor y sus datos', async ({ page }, info) => {
   await mockApi(page);
   await page.goto('/#/compras');

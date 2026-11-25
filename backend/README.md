@@ -91,10 +91,13 @@ npm start
 ### Rutas Protegidas (`/api`)
 - `GET /api/me`: Información del usuario en sesión, permisos RBAC y asignación de granjas.
 - `POST /api/logout`: Cierre de sesión e invalidación de tokens.
+- `GET /api/granjas`: Granjas asignadas al usuario (`granjas:leer`).
 - `GET /api/piscinas`: Lectura de estanques y métricas en tiempo real.
-- `POST /api/operaciones/muestreo`: Registro de biometría (peso, talla, cálculo de biomasa).
-- `POST /api/operaciones/agua`: Registro fisicoquímico (oxígeno, pH, salinidad, amonio) con detección de alertas.
-- `POST /api/operaciones/alimentacion`: Consumo de alimento diario y descuento atómico de inventario en Kardex.
+- `GET /api/ciclos/siguiente`: Consulta del siguiente código sin crear documentos (`piscinas:leer`).
+- `POST /api/ciclos`: Creación explícita de un ciclo activo (`ciclos:crear`).
+- `POST /api/muestreos`: Registro de biometría (peso, talla, cálculo de biomasa).
+- `POST /api/parametros-agua`: Registro fisicoquímico (oxígeno, pH, salinidad, amonio) con detección de alertas.
+- `POST /api/alimentacion`: Consumo de alimento diario y descuento atómico de inventario en Kardex.
 - `GET /api/proveedores`: Listado de proveedores autorizados.
 - `POST /api/proveedores`: Registro de proveedor con cifrado automático AES-256-GCM.
 - `GET /api/ordenes`: Consulta de órdenes de compra con cálculo de IVA y totales.

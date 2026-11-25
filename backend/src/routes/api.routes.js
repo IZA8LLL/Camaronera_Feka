@@ -4,7 +4,7 @@
 const { Router } = require('express');
 const { rateLimit } = require('express-rate-limit');
 const { authenticate, permit } = require('../middlewares/auth.middleware');
-const { validate, sampleDto, waterDto, feedDto, providerDto, orderDto } = require('../middlewares/validate.middleware');
+const { validate, sampleDto, waterDto, feedDto, cycleDto, providerDto, orderDto } = require('../middlewares/validate.middleware');
 const { listarPiscinas } = require('../controllers/piscina.controller');
 const {
   crearMuestreo,
@@ -13,7 +13,8 @@ const {
   listarKardex,
   listarLotes,
   listarGranjas,
-  obtenerSiguienteCiclo
+  obtenerSiguienteCiclo,
+  crearCiclo
 } = require('../controllers/operacion.controller');
 const { listarOrdenes, listarProveedores, crearProveedor, crearOrden } = require('../controllers/compras.controller');
 const { logout } = require('../controllers/auth.controller');
@@ -44,13 +45,14 @@ router.get('/me', (req, res) => {
 });
 
 // ─── Granjas ──────────────────────────────────────────────
-router.get('/granjas', listarGranjas);
+router.get('/granjas', permit('granjas', 'leer'), listarGranjas);
 
 // ─── Piscinas ─────────────────────────────────────────────
 router.get('/piscinas', permit('piscinas', 'leer'), listarPiscinas);
 
 // ─── Ciclos ───────────────────────────────────────────────
-router.get('/ciclos/siguiente', obtenerSiguienteCiclo);
+router.get('/ciclos/siguiente', permit('piscinas', 'leer'), obtenerSiguienteCiclo);
+router.post('/ciclos', permit('ciclos', 'crear'), validate(cycleDto), crearCiclo);
 
 // ─── Muestreos Biométricos ───────────────────────────────
 router.post('/muestreos', permit('muestreos', 'crear'), validate(sampleDto), crearMuestreo);

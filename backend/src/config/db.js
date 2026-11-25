@@ -73,6 +73,21 @@ async function connectDB() {
       console.warn('⚠ No se pudo verificar los roles de la cuenta MongoDB');
     }
   }
+
+  // La API no debe operar si la base no puede garantizar estas dos invariantes.
+  try {
+    const cycleCollection = mongoose.connection.db.collection('ciclos_cultivo');
+    await cycleCollection.createIndex(
+      { tenant_id: 1, codigo: 1 }, { unique: true, name: 'uniq_ciclo_codigo_tenant' }
+    );
+    await cycleCollection.createIndex(
+      { tenant_id: 1, piscina_id: 1 },
+      { unique: true, partialFilterExpression: { estado: 'activo' }, name: 'uniq_ciclo_activo_piscina' }
+    );
+  } catch (error) {
+    await mongoose.disconnect();
+    throw new Error(`No se pudieron asegurar los índices de ciclos: ${error.message}`);
+  }
 }
 
 module.exports = { connectDB, mongoose };

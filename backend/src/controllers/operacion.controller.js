@@ -3,7 +3,7 @@
    Validación de ciclo/piscina y transacción de inventario para alimentación. */
 const mongoose = require('mongoose');
 const { randomUUID } = require('node:crypto');
-const { id, dec, safeText } = require('../config/helpers');
+const { id, oid, dec, safeText } = require('../config/helpers');
 const { Ciclo } = require('../models/ciclo.model');
 const { Piscina } = require('../models/piscina.model');
 const { Muestreo } = require('../models/muestreo.model');
@@ -15,16 +15,20 @@ const { audit } = require('./auth.controller');
 // Verificar que el pool y ciclo pertenecen al usuario
 function allowedPool(req, granjaId, piscinaId) {
   if (req.auth?.isAdmin) return true;
-  const matchGranja = !req.auth.granjaIds?.length || req.auth.granjaIds.some(x => x.equals(granjaId));
-  const matchPiscina = !req.auth.piscinaIds?.length || req.auth.piscinaIds.some(x => x.equals(piscinaId));
+  const matchGranja = req.auth.granjaIds?.some(x => x.equals(granjaId));
+  const matchPiscina = req.auth.piscinaIds?.some(x => x.equals(piscinaId));
   return matchGranja && matchPiscina;
 }
 
 async function checkCycle(req, granjaId, piscinaId, cicloId) {
   if (!allowedPool(req, granjaId, piscinaId)) return false;
+  const pool = await Piscina.exists({
+    _id: piscinaId, tenant_id: req.auth.tenantId, granja_id: granjaId
+  });
+  if (!pool) return false;
   return !!await Ciclo.exists({
-    _id: cicloId,
-    estado: 'activo'
+    _id: cicloId, tenant_id: req.auth.tenantId, granja_id: granjaId,
+    piscina_id: piscinaId, estado: 'activo'
   });
 }
 
@@ -201,7 +205,7 @@ async function listarLotes(req, res, next) {
 async function listarGranjas(req, res, next) {
   try {
     const filter = { tenant_id: req.auth.tenantId };
-    if (!req.auth.isAdmin && req.auth.granjaIds?.length) {
+    if (!req.auth.isAdmin) {
       filter._id = { $in: req.auth.granjaIds };
     }
     const rows = await mongoose.connection.db.collection('granjas_camaroneras')
@@ -219,69 +223,72 @@ async function listarGranjas(req, res, next) {
   } catch (e) { next(e); }
 }
 
-// GET /api/ciclos/siguiente?piscina_id=...&granja_id=...&fecha=...
+async function scopedPool(req, granjaId, piscinaId) {
+  if (!allowedPool(req, granjaId, piscinaId)) return false;
+  return !!await Piscina.exists({
+    _id: piscinaId, tenant_id: req.auth.tenantId, granja_id: granjaId
+  });
+}
+
+async function nextCycleCode(tenantId, year) {
+  const prefix = `CIC-${year}-P`;
+  const rows = await mongoose.connection.db.collection('ciclos_cultivo')
+    .find({ tenant_id: tenantId, codigo: new RegExp(`^${prefix}[0-9]+$`) })
+    .project({ codigo: 1 }).toArray();
+  const maxNum = rows.reduce((max, row) => Math.max(max, Number(row.codigo.slice(prefix.length))), 0);
+  return { maxNum, nextCodigo: `${prefix}${String(maxNum + 1).padStart(2, '0')}` };
+}
+
+// GET calcula el siguiente código; nunca crea documentos.
 async function obtenerSiguienteCiclo(req, res, next) {
   try {
-    const d = req.query.fecha ? new Date(req.query.fecha) : new Date();
-    const year = isNaN(d.getTime()) ? new Date().getFullYear() : d.getFullYear();
-    const piscinaId = req.query.piscina_id;
-    const granjaId = req.query.granja_id;
-
-    // Buscar todos los ciclos registrados del año para el tenant
-    const prefix = `CIC-${year}-P`;
-    const ciclos = await Ciclo.find({
-      tenant_id: req.auth.tenantId,
-      codigo: new RegExp(`^CIC-${year}-`)
-    }).select('codigo estado piscina_id granja_id').sort({ codigo: 1 }).lean();
-
-    let maxNum = 0;
-    for (const c of ciclos) {
-      if (c.codigo && c.codigo.startsWith(prefix)) {
-        const num = parseInt(c.codigo.slice(prefix.length), 10);
-        if (!isNaN(num) && num > maxNum) {
-          maxNum = num;
-        }
-      }
+    if (!oid().safeParse(req.query.granja_id).success ||
+        !oid().safeParse(req.query.piscina_id).success) {
+      return res.status(400).json({ error: 'Granja y piscina requeridas' });
     }
-
-    // Regla de secuencia: si hay 5 registrados en 2026, el siguiente es el 6: CIC-2026-P06
-    // En 2027, al haber 0 registrados para 2027, el siguiente es 1: CIC-2027-P01
-    const nextNum = maxNum + 1;
-    const nextCodigo = `CIC-${year}-P${String(nextNum).padStart(2, '0')}`;
-
-    // Asegurar que exista documento activo para vincular en el registro si se pasa piscina
-    let targetCiclo = await Ciclo.findOne({
-      tenant_id: req.auth.tenantId,
-      codigo: nextCodigo
-    });
-
-    if (!targetCiclo && piscinaId && granjaId) {
-      targetCiclo = await Ciclo.create({
-        tenant_id: req.auth.tenantId,
-        granja_id: id(granjaId),
-        piscina_id: id(piscinaId),
-        codigo: nextCodigo,
-        fecha_inicio: new Date(`${year}-01-01T00:00:00.000Z`),
-        estado: 'activo',
-        biomasa_estimada_kg: dec(0),
-        especie: 'Litopenaeus vannamei'
-      });
+    const fecha = req.query.fecha ? new Date(req.query.fecha) : new Date();
+    if (Number.isNaN(fecha.getTime())) return res.status(400).json({ error: 'Fecha inválida' });
+    const granjaId = id(req.query.granja_id), piscinaId = id(req.query.piscina_id);
+    if (!await scopedPool(req, granjaId, piscinaId)) {
+      return res.status(403).json({ error: 'Piscina fuera de alcance' });
     }
-
+    const year = fecha.getUTCFullYear();
+    const { maxNum, nextCodigo } = await nextCycleCode(req.auth.tenantId, year);
+    const ciclos = await Ciclo.find({ piscina_id: piscinaId, granja_id: granjaId })
+      .select('codigo estado piscina_id granja_id').sort({ codigo: 1 }).lean();
     res.json({
-      year,
-      total_registrados: maxNum,
-      siguiente_codigo: nextCodigo,
-      siguiente_id: targetCiclo ? String(targetCiclo._id) : null,
+      year, total_registrados: maxNum, siguiente_codigo: nextCodigo, siguiente_id: null,
       ciclos_existentes: ciclos.map(c => ({
-        id: String(c._id),
-        codigo: c.codigo,
-        estado: c.estado,
-        piscina_id: String(c.piscina_id),
-        granja_id: String(c.granja_id)
+        id: String(c._id), codigo: c.codigo, estado: c.estado,
+        piscina_id: String(c.piscina_id), granja_id: String(c.granja_id)
       }))
     });
   } catch (e) { next(e); }
+}
+
+// POST crea un ciclo activo con permiso explícito y vínculo comprobado.
+async function crearCiclo(req, res, next) {
+  try {
+    const granjaId = id(req.data.granja_id), piscinaId = id(req.data.piscina_id);
+    if (!await scopedPool(req, granjaId, piscinaId)) {
+      return res.status(403).json({ error: 'Piscina fuera de alcance' });
+    }
+    if (await Ciclo.exists({ piscina_id: piscinaId, estado: 'activo' })) {
+      return res.status(409).json({ error: 'La piscina ya tiene un ciclo activo' });
+    }
+    const fecha = new Date(req.data.fecha_inicio);
+    const { nextCodigo } = await nextCycleCode(req.auth.tenantId, fecha.getUTCFullYear());
+    const cycle = await Ciclo.create({
+      tenant_id: req.auth.tenantId, granja_id: granjaId, piscina_id: piscinaId,
+      codigo: nextCodigo, fecha_inicio: fecha, estado: 'activo',
+      biomasa_estimada_kg: dec(0), especie: 'Litopenaeus vannamei'
+    });
+    await audit(req, 'crear', 'ciclos_cultivo', cycle._id, 'exito');
+    return res.status(201).json({ id: String(cycle._id), codigo: cycle.codigo });
+  } catch (e) {
+    if (e?.code === 11000) return res.status(409).json({ error: 'Ciclo duplicado; vuelva a consultar' });
+    next(e);
+  }
 }
 
 module.exports = {
@@ -291,5 +298,6 @@ module.exports = {
   listarKardex,
   listarLotes,
   listarGranjas,
-  obtenerSiguienteCiclo
+  obtenerSiguienteCiclo,
+  crearCiclo
 };

@@ -4,12 +4,13 @@
    ═══════════════════════════════════════════════════════════ */
 import {
   crearParametrosAgua,
+  crearCiclo,
   fetchGranjas,
   fetchSiguienteCiclo,
   type GranjaRow
 } from '../../services/operacion.service';
 import { fetchPiscinas } from '../../services/piscina.service';
-import { calcularSiguienteCodigoCiclo, formatPiscinaNombre } from '../../core/ciclo-rule';
+import { formatPiscinaNombre } from '../../core/ciclo-rule';
 import type { PiscinaRow } from '../../core/models/index';
 import { showToast } from '../../core/toast';
 import { escapeHtml, formIntro } from '../../shared/ui';
@@ -58,6 +59,7 @@ export function renderFormAgua(): string {
               <option value="" disabled selected>Calculando ciclo…</option>
             </select>
             <span class="form-hint" id="a-ciclo-hint">Siguiente en secuencia según registros del año</span>
+            <button class="btn btn--ghost btn--sm" id="a-crear-ciclo" type="button" hidden>Crear ciclo activo</button>
           </div>
           <div class="form-group">
             <label class="form-label" for="a-fecha">Fecha y hora *</label>
@@ -120,6 +122,7 @@ export async function initFormAgua() {
   const selectGranja = document.getElementById('a-granja') as HTMLSelectElement;
   const selectPiscina = document.getElementById('a-piscina') as HTMLSelectElement;
   const selectCiclo = document.getElementById('a-ciclo') as HTMLSelectElement;
+  const crearCicloButton = document.getElementById('a-crear-ciclo') as HTMLButtonElement;
   const hintCiclo = document.getElementById('a-ciclo-hint')!;
   const titleElem = document.getElementById('a-title')!;
   const form = document.getElementById('agua-form') as HTMLFormElement;
@@ -167,45 +170,20 @@ export async function initFormAgua() {
         fecha: fechaVal
       });
 
-      const paramCiclo = getParam('ciclo');
-      const cicloActivo = paramCiclo || pool.ciclo_id;
-
-      let options = '';
-      if (cicloActivo && cicloActivo !== res?.siguiente_id && !res?.ciclos_existentes?.some(c => c.id === cicloActivo)) {
-        options += `<option value="${cicloActivo}" selected>${pool.ciclo_codigo || 'Ciclo actual'} (Asignado)</option>`;
-      }
-
-      if (res?.siguiente_id) {
-        const isSel = !cicloActivo || cicloActivo === res.siguiente_id;
-        options += `<option value="${res.siguiente_id}" ${isSel ? 'selected' : ''}>${res.siguiente_codigo} (Siguiente ciclo en secuencia)</option>`;
-      }
-
-      if (res?.ciclos_existentes && Array.isArray(res.ciclos_existentes)) {
-        options += `<optgroup label="Ciclos registrados anteriormente">`;
-        for (const c of res.ciclos_existentes) {
-          const isSel = c.id === cicloActivo;
-          options += `<option value="${c.id}" ${isSel ? 'selected' : ''}>${c.codigo} (${c.estado})</option>`;
-        }
-        options += `</optgroup>`;
-      }
-
-      if (!options) {
-        const fallbackId = cicloActivo || pool.ciclo_id || '';
-        options = `<option value="${fallbackId}" selected>${pool.ciclo_codigo || 'Ciclo activo'}</option>`;
-      }
-
-      selectCiclo.innerHTML = options;
-      if (cicloActivo) {
-        selectCiclo.value = cicloActivo;
-      }
+      const activeCycles = (res.ciclos_existentes || []).filter(c =>
+        c.estado === 'activo' && c.piscina_id === pool.id && c.granja_id === granjaReal);
+      const preferred = activeCycles.find(c => c.id === getParam('ciclo'))?.id || activeCycles[0]?.id;
+      selectCiclo.innerHTML = activeCycles.length
+        ? activeCycles.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.codigo)}</option>`).join('')
+        : '<option value="" selected>No hay ciclo activo</option>';
+      selectCiclo.value = preferred || '';
+      crearCicloButton.hidden = activeCycles.length > 0;
       hintCiclo.textContent = `Registrados en ${res?.year ?? new Date().getFullYear()}: ${res?.total_registrados ?? 0} → Siguiente en secuencia: ${res?.siguiente_codigo ?? ''}`;
       titleElem.textContent = `Calidad del agua — ${formatPiscinaNombre(pool.codigo)}`;
     } catch {
-      const d = fechaVal ? new Date(fechaVal) : new Date();
-      const code = calcularSiguienteCodigoCiclo(5, d);
-      const fallbackCiclo = getParam('ciclo') || pool.ciclo_id || '';
-      selectCiclo.innerHTML = `<option value="${fallbackCiclo}" selected>${code}</option>`;
-      hintCiclo.textContent = `Siguiente código calculado: ${code}`;
+      selectCiclo.innerHTML = '<option value="" selected>No se pudo consultar el ciclo</option>';
+      crearCicloButton.hidden = true;
+      hintCiclo.textContent = 'No se pudo verificar el ciclo activo';
     }
   }
 
@@ -282,6 +260,20 @@ export async function initFormAgua() {
 
   fechaInput.addEventListener('change', actualizarCiclo);
   fechaInput.addEventListener('input', actualizarCiclo);
+  crearCicloButton.addEventListener('click', async () => {
+    const pool = piscinas.find(p => p.id === selectPiscina.value);
+    if (!pool || !fechaInput.value) return;
+    crearCicloButton.disabled = true;
+    try {
+      await crearCiclo({ granja_id: pool.granja_id, piscina_id: pool.id, fecha_inicio: new Date(fechaInput.value).toISOString() });
+      await actualizarCiclo();
+      showToast('Ciclo activo creado', 'success');
+    } catch (error: unknown) {
+      showToast(error && typeof error === 'object' && 'error' in error ? String(error.error) : 'No se pudo crear el ciclo', 'error');
+    } finally {
+      crearCicloButton.disabled = false;
+    }
+  });
 
   // Preview de alertas en tiempo real
   const inputs = ['a-oxigeno', 'a-ph', 'a-amonio'];

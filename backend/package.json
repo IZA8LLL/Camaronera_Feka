@@ -27,6 +27,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "mongodb-memory-server-core": "^11.4.0",
     "nodemon": "^3.1.9"
   }
 }

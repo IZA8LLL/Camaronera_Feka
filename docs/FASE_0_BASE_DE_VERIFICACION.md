@@ -2,13 +2,15 @@
 
 **Fecha:** 24 de noviembre de 2026. **Ámbito:** API local y pruebas existentes del frontend.
 
+**Estado posterior:** los siete casos marcados `TODO` en esta fotografía inicial se corrigieron en la fase 1. La matriz actual se ejecuta sin casos pendientes.
+
 ## Entorno reproducible
 
-`backend/test/security-baseline.test.js` inicia un proceso `mongod` local con réplica de un nodo, puerto libre y directorio temporal. El proceso se detiene y borra su directorio al terminar. El test fija explícitamente `MONGO_URI`, `JWT_SECRET`, `ENCRYPTION_KEY_BASE64`, `APP_ORIGIN` y `NODE_ENV` antes de cargar la aplicación. No usa la conexión del `.env` local ni datos de producción. Requiere `mongod` instalado y disponible en `PATH`; se ejecuta con `cd backend && npm run test:security`.
+`backend/test/security-baseline.test.js` inicia una réplica temporal de un nodo mediante `mongodb-memory-server-core`. Usa el binario local de `mongod` si existe; en CI descarga el binario de ensayo fijado por versión. El proceso y sus archivos se eliminan al terminar. El test fija explícitamente `MONGO_URI`, `JWT_SECRET`, `ENCRYPTION_KEY_BASE64`, `APP_ORIGIN` y `NODE_ENV` antes de cargar la aplicación. No usa la conexión del `.env` local ni datos de producción. Se ejecuta con `cd backend && npm run test:security`.
 
-Los datos son sintéticos: dos tenants, dos granjas y dos piscinas por tenant, cuatro ciclos activos, cuatro usuarios (operador con dos granjas, lector con una, lector sin asignación y lector del otro tenant), roles y permisos de lectura/escritura, sesiones temporales y un lote de alimento. Los identificadores se generan en cada ejecución.
+Los datos son sintéticos: dos tenants, dos granjas y dos piscinas por tenant, ciclos de ensayo, cinco usuarios (operador con dos granjas, lector con una, lector sin asignación, lector del otro tenant y administrador), roles y permisos de lectura/escritura, sesiones temporales y un lote de alimento. Los identificadores se generan en cada ejecución.
 
-Las pruebas marcadas `TODO` expresan el contrato de seguridad **esperado**. Fallan hoy por los hallazgos S-01 a S-03 de la auditoría. Node las informa sin hacer fallar el comando; en la fase 1 se quitará `TODO` al corregir cada caso. No deben interpretarse como pruebas aprobadas.
+La tabla siguiente conserva las respuestas observadas **antes** de la fase 1. El estado actual y los resultados posteriores figuran en `FASE_1_ACCESO_Y_CONSISTENCIA.md`.
 
 ## Matriz de acceso y respuestas
 
@@ -30,8 +32,8 @@ Los cruces de granja y piscina usan identificadores válidos y asignados al mism
 
 ## Línea base existente
 
-- Backend: `npm test` conserva las tres pruebas unitarias de validación. La nueva matriz se ejecuta en el mismo comando y deja siete casos de seguridad como `TODO`.
+- Backend: `npm test` conserva las tres pruebas unitarias de validación. La matriz se ejecuta en el mismo comando; los siete casos inicialmente pendientes pasan tras la fase 1.
 - Frontend: `npm run build` termina correctamente.
 - Frontend: `npm run test:e2e` aprobó las 24 pruebas (escritorio y móvil).
 
-**Criterio de salida de fase 0:** cumplido para el entorno aislado y la reproducción de accesos permitidos y denegados. Los siete incumplimientos de seguridad quedan pendientes para la fase 1.
+**Criterio de salida de fase 0:** cumplido para el entorno aislado y la reproducción de accesos permitidos y denegados.

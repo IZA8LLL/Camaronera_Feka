@@ -75,6 +75,14 @@ export async function fetchSiguienteCiclo(params: {
   const query = new URLSearchParams();
   if (params.piscina_id) query.set('piscina_id', params.piscina_id);
   if (params.granja_id) query.set('granja_id', params.granja_id);
-  if (params.fecha) query.set('fecha', params.fecha);
+  if (params.fecha) query.set('fecha', new Date(params.fecha).toISOString());
   return apiFetch<SiguienteCicloResponse>(`/api/ciclos/siguiente?${query.toString()}`);
+}
+
+export async function crearCiclo(payload: {
+  granja_id: string;
+  piscina_id: string;
+  fecha_inicio: string;
+}): Promise<{ id: string; codigo: string }> {
+  return apiFetch('/api/ciclos', { method: 'POST', body: JSON.stringify(payload) });
 }

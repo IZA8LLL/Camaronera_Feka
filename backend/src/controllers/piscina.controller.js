@@ -9,8 +9,13 @@ const { Consumo } = require('../models/consumo.model');
 // GET /api/piscinas
 async function listarPiscinas(req, res, next) {
   try {
+    const filter = { tenant_id: req.auth.tenantId };
+    if (!req.auth.isAdmin) {
+      filter.granja_id = { $in: req.auth.granjaIds };
+      filter._id = { $in: req.auth.piscinaIds };
+    }
     const pools = await mongoose.connection.db.collection('piscinas_estanques')
-      .find({ tenant_id: req.auth.tenantId })
+      .find(filter)
       .sort({ codigo: 1 })
       .toArray();
 
@@ -23,7 +28,7 @@ async function listarPiscinas(req, res, next) {
         Consumo.findOne({ piscina_id: p._id }).sort({ fecha: -1 })
           .select('fca cantidad_kg fecha').lean(),
         mongoose.connection.db.collection('granjas_camaroneras').findOne(
-          { _id: p.granja_id },
+          { _id: p.granja_id, tenant_id: req.auth.tenantId },
           { projection: { nombre: 1, codigo: 1 } }
         )
       ]);

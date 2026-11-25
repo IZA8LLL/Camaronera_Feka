@@ -17,6 +17,11 @@ const cicloSchema = new mongoose.Schema({
 }, schemaOptions);
 
 cicloSchema.plugin(tenantScope);
+cicloSchema.index({ tenant_id: 1, codigo: 1 }, { unique: true, name: 'uniq_ciclo_codigo_tenant' });
+cicloSchema.index(
+  { tenant_id: 1, piscina_id: 1 },
+  { unique: true, partialFilterExpression: { estado: 'activo' }, name: 'uniq_ciclo_activo_piscina' }
+);
 
 const Ciclo = mongoose.model('Ciclo', cicloSchema, 'ciclos_cultivo');
 

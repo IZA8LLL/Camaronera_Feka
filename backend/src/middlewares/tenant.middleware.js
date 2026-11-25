@@ -10,10 +10,8 @@ function tenantScope(schema) {
     if (!ctx) throw new Error('Falta contexto de seguridad');
 
     // Filtro base por tenant y granjas asignadas
-    this.where({
-      tenant_id: ctx.tenantId,
-      granja_id: { $in: ctx.granjaIds }
-    });
+    this.where({ tenant_id: ctx.tenantId });
+    if (!ctx.isAdmin) this.where({ granja_id: { $in: ctx.granjaIds } });
 
     // Si el schema tiene piscina_id y no es admin, filtrar por piscinas asignadas
     if (schema.path('piscina_id') && !ctx.isAdmin) {
@@ -55,10 +53,8 @@ function tenantScope(schema) {
   schema.pre('aggregate', function () {
     const ctx = scopeStore.getStore();
     if (!ctx) throw new Error('Falta contexto de seguridad');
-    const match = {
-      tenant_id: ctx.tenantId,
-      granja_id: { $in: ctx.granjaIds }
-    };
+    const match = { tenant_id: ctx.tenantId };
+    if (!ctx.isAdmin) match.granja_id = { $in: ctx.granjaIds };
     if (schema.path('piscina_id') && !ctx.isAdmin) {
       match.piscina_id = { $in: ctx.piscinaIds };
     }
@@ -72,7 +68,7 @@ function tenantScope(schema) {
     if (!this.tenant_id) this.tenant_id = ctx.tenantId;
 
     if (!this.tenant_id.equals(ctx.tenantId) ||
-        !ctx.granjaIds.some(x => x.equals(this.granja_id))) {
+        (!ctx.isAdmin && !ctx.granjaIds.some(x => x.equals(this.granja_id)))) {
       throw new Error('Granja/tenant fuera de alcance');
     }
     if (this.piscina_id && !ctx.isAdmin &&

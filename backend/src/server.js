@@ -114,7 +114,7 @@ async function bootstrap() {
 
   const tenant = new mongoose.Types.ObjectId();
   const actions = [
-    ['piscinas', 'leer'], ['muestreos', 'crear'], ['agua', 'crear'],
+    ['granjas', 'leer'], ['piscinas', 'leer'], ['ciclos', 'crear'], ['muestreos', 'crear'], ['agua', 'crear'],
     ['alimentacion', 'crear'], ['kardex', 'leer'], ['compras', 'leer'],
     ['compras', 'crear'], ['proveedores', 'crear'], ['adjuntos', 'crear']
   ];
