@@ -1,6 +1,6 @@
 # By Fekas Corp. — Frontend
 
-ERP camaronero con Vite, TypeScript y CSS. La interfaz usa una paleta pizarra y plata, navegación adaptable a móvil y componentes visuales compartidos. Los servicios HTTP conservan los contratos de la API existente.
+ERP camaronero con Angular, TypeScript y CSS. La interfaz ofrece temas claro y oscuro, navegación adaptable a móvil y servicios HTTP para la API.
 
 ## Ejecutar
 
@@ -11,15 +11,16 @@ npm ci
 npm run dev
 ```
 
-Vite atiende en el puerto 5173 y redirige `/auth`, `/api` y `/health` al backend local en el puerto 3000. Las operaciones reales necesitan el backend y su configuración. No se incluyen credenciales ni datos de demostración en la aplicación.
+Angular CLI atiende en el puerto 5173 y usa `proxy.conf.json` para redirigir `/auth`, `/api` y `/health` al backend local en el puerto 3000. Las operaciones reales necesitan el backend y su configuración. No se incluyen credenciales ni datos de demostración en la aplicación.
 
 ## Organización
 
 ```text
 src/
-  main.ts                 Entrada y eventos de navegación
-  app.component.ts        Shell, inicialización de página y limpieza del menú
-  app.routes.ts           Rutas y protección de acceso
+  main.ts                 Arranque de Angular
+  app/
+    app.component.ts      Shell y navegación principal
+    app.routes.ts         Rutas y protección de acceso
   shared/
     ui.ts                 Iconos, encabezados, secciones y escape de texto
     navigation.ts         Menú y comportamiento accesible en móvil
@@ -32,11 +33,9 @@ src/
     pages.css             Composición específica de páginas
   pages/                  Plantillas y eventos de cada módulo
   services/               Comunicación HTTP y sesión
-  core/                   Modelos, guardas, interceptores y notificaciones
+  core/                   Modelos, guardas y notificaciones
 tests/erp.spec.ts          Regresión de interfaz con API simulada
 ```
-
-Los archivos `app.ts` y `router.ts` se conservan como reexportaciones de compatibilidad. No representan implementaciones alternativas.
 
 ## Pantallas disponibles
 
@@ -59,7 +58,7 @@ npm run test:e2e
 npm run check
 ```
 
-Playwright inicia una instancia aislada de Vite en `127.0.0.1:4175`. Prueba escritorio y móvil, los contratos de envío de los tres registros y proveedores, acceso/salida, menú con teclado, estados vacíos y de error, escape de datos y desbordamiento a 320px. Todas las llamadas a `/api` y `/auth` se interceptan con datos ficticios: estas pruebas no requieren MongoDB y no certifican la integración con la base real.
+Playwright inicia Angular CLI en `127.0.0.1:4175`. Prueba escritorio y móvil, los contratos de envío de los tres registros y proveedores, acceso/salida, creación explícita de ciclos, menú con teclado, estados vacíos y de error, escape de datos y desbordamiento a 320px. Todas las llamadas a `/api` y `/auth` se interceptan con datos ficticios: estas pruebas no requieren MongoDB y no certifican la integración con la base real.
 
 Las capturas se generan en `test-results/`; ante fallas se conserva también una traza. Esos resultados no se versionan. Para ejecutar en otra máquina, usar `npm ci` e instalar Chromium con el comando indicado.
 
@@ -81,4 +80,4 @@ Estos criterios aportan mantenibilidad, usabilidad y prevención de regresiones.
 
 ## Alcance del rediseño
 
-Se reorganizó la presentación sin cambiar servicios, modelos de negocio, endpoints, autenticación ni backend. Se corrigió además el atributo HTML `step` del oxígeno: `min="0.000001"` junto con `step="0.01"` rechazaba valores normales como `6.5`; `step="any"` admite decimales conservando el mínimo, máximo y campo obligatorio. Las pruebas verifican el envío de `6.5` y el rechazo de un valor superior a 30.
+La interfaz usa Angular como punto de entrada y conserva los formularios de campo. La creación de ciclos requiere una acción explícita; la consulta del siguiente código es de solo lectura. El atributo `step="any"` del oxígeno admite decimales respetando el mínimo, máximo y campo obligatorio.

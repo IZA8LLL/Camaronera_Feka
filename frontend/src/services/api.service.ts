@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════════════════════════
-   API Service — HttpClient base con interceptors
-   Maneja tokens, refresh automático y errores globales
-   ═══════════════════════════════════════════════════════════ */
+/* Cliente HTTP compartido: token de acceso, renovación y errores de la API. */
 import type { ApiError } from '../core/models/index';
 
 const BASE_URL = '';  // Proxy de Vite redirige a localhost:3000

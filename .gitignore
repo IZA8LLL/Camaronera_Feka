@@ -45,6 +45,19 @@ credenciales/
 *.pfx
 *.keystore
 *.jks
+*.asc
+*.gpg
+
+# Informes internos de seguridad y evidencias locales
+docs/AUDITORIA_*.md
+docs/FASE_0_BASE_DE_VERIFICACION.md
+docs/FASE_1_ACCESO_Y_CONSISTENCIA.md
+/security_architecture.js
+audit-reports/
+security-reports/
+*npm-audit*.json
+*.sarif
+*.har
 
 # Documentos confidenciales, informes y ofimática
 entregables/
@@ -68,6 +81,8 @@ GUIA_ENTREGA.md
 *.bson
 backups/
 dumps/
+*.archive
+*.mongodump
 
 # Editor directories and files
 .vscode/*

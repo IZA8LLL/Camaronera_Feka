@@ -32,35 +32,7 @@ API REST robusta desarrollada en Node.js, Express y Mongoose para la gestión in
 
 ## ⚙️ Configuración (.env)
 
-Cree un archivo `.env` en la raíz de la carpeta `backend/` basándose en `.env.example`:
-
-```env
-NODE_ENV=development
-PORT=3000
-
-# Cadena de conexión de MongoDB Atlas
-MONGO_URI=mongodb+srv://<usuario>:<password>@cluster0.mongodb.net/by_fekas_corp_db?retryWrites=true&w=majority
-
-# Seguridad JWT (mínimo 32 caracteres aleatorios)
-JWT_SECRET=super_secret_camaronera_fekas_jwt_key_2026_xYz987!
-
-# Clave AES-256-GCM (32 bytes en Base64 = 44 caracteres)
-ENCRYPTION_KEY_BASE64=YnlfZmVrYXNfY29ycF9zZWN1cmVfa2V5XzIwMjZfMzJieXRlczE=
-
-# Cloudflare Turnstile (opcional en desarrollo)
-TURNSTILE_SECRET=0x4AAAAAAA...
-TURNSTILE_HOSTNAME=localhost
-
-# Origen del Frontend
-APP_ORIGIN=http://localhost:5173
-
-# Directorio privado de uploads
-PRIVATE_UPLOAD_DIR=../uploads
-
-# Credenciales para inicializar el primer usuario Administrador
-BOOTSTRAP_EMAIL=admin@byfekas.com
-BOOTSTRAP_PASSWORD=AdminCamaronera2026!
-```
+Cree `backend/.env` a partir de `backend/.env.example` y sustituya todos los valores de ejemplo por valores propios. La clave JWT debe tener al menos 32 caracteres aleatorios y la clave AES debe contener 32 bytes codificados en Base64. El archivo `.env` está excluido de Git.
 
 ---
 
